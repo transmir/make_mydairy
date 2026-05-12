@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Video Diary & Habit Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar h1 {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        /* Video Recording */
+        .webcam-container {
+            position: relative;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .recording-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .recording-indicator {
+            width: 12px;
+            height: 12px;
+            background: red;
+            border-radius: 50%;
+            display: inline-block;
+            animation: blink 1s infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Form Elements */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Diary Entries */
+        .entry-card {
+            transition: transform 0.3s;
+        }
+
+        .entry-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .entry-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .entry-date {
+            color: #888;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .entry-description {
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        /* Habit Cards */
+        .habit-card {
+            border-left: 4px solid #667eea;
+        }
+
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .habit-name {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .habit-category {
+            background: #f0f0f0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            display: block;
+            margin: 5px 0;
+        }
+
+        .streak-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* Date Picker */
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .date-display {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 800px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <h1>📹 My Video Diary & Tracker</h1>
+        <div class="nav-buttons">
+            <button class="btn btn-primary" onclick="switchTab('diary')">📹 Video Diary</button>
+            <button class="btn btn-primary" onclick="switchTab('habits')">✅ Habit Tracker</button>
+            <button class="btn btn-primary" onclick="exportData()">💾 Backup Data</button>
+            <button class="btn btn-secondary" onclick="importData()">📥 Restore Backup</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Video Diary Tab -->
+        <div id="diary-tab" class="tab-content active">
+            <div class="card">
+                <h2>Record Today's Video Diary</h2>
+                
+                <!-- Date Selection -->
+                <div class="date-nav">
+                    <button class="btn btn-secondary btn-small" onclick="changeDate(-1)">◀ Previous Day</button>
+                    <input type="date" id="diaryDate" class="date-display" onchange="loadEntries()">
+                    <button class="btn btn-secondary btn-small" onclick="changeDate(1)">Next Day ▶</button>
+                    <button class="btn btn-primary btn-small" onclick="goToToday()">Today</button>
+                </div>
+
+                <!-- Recording Section -->
+                <div id="recordingSection">
+                    <div class="webcam-container">
+                        <video id="webcamPreview" autoplay playsinline muted></video>
+                    </div>
+                    
+                    <div class="recording-controls">
+                        <button id="startBtn" class="btn btn-danger" onclick="startRecording()">
+                            <span class="recording-indicator" style="display:none" id="recIndicator"></span>
+                            Start Recording
+                        </button>
+                        <button id="stopBtn" class="btn btn-secondary hidden" onclick="stopRecording()">
+                            Stop Recording
+                        </button>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div id="previewSection" class="hidden">
+                        <h3>Preview Your Recording</h3>
+                        <video id="recordedPreview" controls></video>
+                        
+                        <div class="input-group" style="margin-top: 20px;">
+                            <label>Title</label>
+                            <input type="text" id="entryTitle" placeholder="What's this entry about?">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Notes (Optional)</label>
+                            <textarea id="entryNotes" placeholder="Any thoughts or reflections..."></textarea>
+                        </div>
+                        
+                        <div class="recording-controls">
+                            <button class="btn btn-success" onclick="saveEntry()">💾 Save Entry</button>
+                            <button class="btn btn-secondary" onclick="discardRecording()">❌ Discard</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Past Entries -->
+            <div class="card">
+                <h2>Your Video Entries</h2>
+                <div id="entriesList" class="grid grid-3">
+                    <div class="empty-state">
+                        <p>No entries yet. Start recording your first video diary!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Habit Tracker Tab -->
+        <div id="habits-tab" class="tab-content">
+            <div class="card">
+                <h2>Daily Habit Tracker</h2>
+                
+                <!-- Date Navigation for Habits -->
+                <div class="date-nav">
+                    <button class="btn btn-secondary btn-small" onclick="changeHabitDate(-1)">◀ Previous Day</button>
+                    <input type="date" id="habitDate" class="date-display" onchange="loadHabits()">
+                    <button class="btn btn-secondary btn-small" onclick="changeHabitDate(1)">Next Day ▶</button>
+                    <button class="btn btn-primary btn-small" onclick="goToTodayHabits()">Today</button>
+                </div>
+
+                <!-- Add New Habit -->
+                <div style="margin: 20px 0;">
+                    <button class="btn btn-primary" onclick="showAddHabitForm()">+ Add New Habit</button>
+                </div>
+
+                <div id="addHabitForm" class="hidden card" style="background: #f9f9f9;">
+                    <h3>Create New Habit</h3>
+                    <div class="input-group">
+                        <label>Habit Name</label>
+                        <input type="text" id="habitName" placeholder="e.g., Morning Exercise">
+                    </div>
+                    <div class="input-group">
+                        <label>Category</label>
+                        <select id="habitCategory">
+                            <option value="sleep">😴 Sleep</option>
+                            <option value="study">📚 Study</option>
+                            <option value="exercise">💪 Exercise</option>
+                            <option value="meditation">🧘 Meditation</option>
+                            <option value="reading">📖 Reading</option>
+                            <option value="work">💼 Work</option>
+                            <option value="other">⭐ Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Tracking Type</label>
+                        <select id="habitType" onchange="toggleHabitType()">
+                            <option value="boolean">Yes/No (Done or Not)</option>
+                            <option value="numeric">Number (e.g., pages read)</option>
+                            <option value="duration">Duration (e.g., hours slept)</option>
+                        </select>
+                    </div>
+                    <div id="habitUnitGroup" class="input-group hidden">
+                        <label>Unit</label>
+                        <input type="text" id="habitUnit" placeholder="e.g., hours, pages, minutes">
+                    </div>
+                    <div id="habitTargetGroup" class="input-group hidden">
+                        <label>Daily Target</label>
+                        <input type="number" id="habitTarget" value="1" min="1">
+                    </div>
+                    <button class="btn btn-success" onclick="addHabit()">Create Habit</button>
+                    <button class="btn btn-secondary" onclick="hideAddHabitForm()">Cancel</button>
+                </div>
+
+                <!-- Habits List -->
+                <div id="habitsList" class="grid grid-2">
+                    <div class="empty-state">
+                        <p>No habits created yet. Start building healthy habits!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Habit Statistics -->
+            <div class="card">
+                <h2>Your Habit Streaks (Last 30 Days)</h2>
+                <div id="habitStats" class="grid grid-2">
+                    <div class="empty-state">
+                        <p>Track some habits to see your statistics!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <p id="modalDate" style="color: #888; margin: 10px 0;"></p>
+            <video id="modalVideo" controls style="width: 100%; border-radius: 10px;"></video>
+            <p id="modalNotes" style="margin-top: 15px; color: #666;"></p>
+            <button class="btn btn-danger" id="modalDelete" onclick="deleteEntryFromModal()" style="margin-top: 15px;">
+                🗑️ Delete This Entry
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA STORAGE =====
+        const STORAGE_KEY_DIARY = 'videoDiary_entries';
+        const STORAGE_KEY_HABITS = 'habitTracker_habits';
+        const STORAGE_KEY_HABIT_LOGS = 'habitTracker_logs';
+
+        // ===== GLOBAL VARIABLES =====
+        let mediaRecorder;
+        let recordedChunks = [];
+        let currentStream;
+        let selectedEntryId = null;
+
+        // ===== INITIALIZATION =====
+        window.onload = function() {
+            // Set today's date for diary
+            document.getElementById('diaryDate').value = getTodayDate();
+            document.getElementById('habitDate').value = getTodayDate();
+            
+            // Initialize webcam
+            initWebcam();
+            
+            // Load data
+            loadEntries();
+            loadHabits();
+            
+            // Check for browser support
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Your browser does not support video recording. Please use a modern browser like Chrome or Firefox.');
+            }
+        };
+
+        function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // ===== TAB SWITCHING =====
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            if (tab === 'diary') {
+                initWebcam();
+            }
+        }
+
+        // ===== WEBCAM =====
+        async function initWebcam() {
+            try {
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+                
+                currentStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                const preview = document.getElementById('webcamPreview');
+                preview.srcObject = currentStream;
+            } catch (err) {
+                console.error('Error accessing webcam:', err);
+                document.getElementById('webcamPreview').style.display = 'none';
+            }
+        }
+
+        // ===== VIDEO RECORDING =====
+        function startRecording() {
+            recordedChunks = [];
+            const stream = document.getElementById('webcamPreview').srcObject;
+            
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm'
+            });
+            
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+            
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const preview = document.getElementById('recordedPreview');
+                preview.src = URL.createObjectURL(blob);
+                
+                document.getElementById('previewSection').classList.remove('hidden');
+                document.getElementById('recordingSection').classList.add('hidden');
+            };
+            
+            mediaRecorder.start();
+            
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('recIndicator').style.display = 'inline-block';
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('recIndicator').style.display = 'none';
+        }
+
+        // ===== SAVE VIDEO ENTRY =====
+        function saveEntry() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const reader = new FileReader();
+            
+            reader.onload = function() {
+                const entries = getEntries();
+                const entry = {
+                    id: Date.now().toString(),
+                    date: document.getElementById('diaryDate').value,
+                    title: document.getElementById('entryTitle').value || 'Untitled Entry',
+                    notes: document.getElementById('entryNotes').value,
+                    videoData: reader.result,
+                    timestamp: new Date().toISOString()
+                };
+                
+                entries.unshift(entry);
+                localStorage.setItem(STORAGE_KEY_DIARY, JSON.stringify(entries));
+                
+                // Reset form
+                document.getElementById('entryTitle').value = '';
+                document.getElementById('entryNotes').value = '';
+                document.getElementById('previewSection').classList.add('hidden');
+                document.getElementById('recordingSection').classList.remove('hidden');
+                
+                loadEntries();
+                alert('✅ Video diary entry saved successfully!');
+            };
+            
+            reader.readAsDataURL(blob);
+        }
+
+        function discardRecording() {
+            if (confirm('Are you sure you want to discard this recording?')) {
+                document.getElementById('previewSection').classList.add('hidden');
+                document.getElementById('recordingSection').classList.remove('hidden');
+                document.getElementById('entryTitle').value = '';
+                document.getElementById('entryNotes').value = '';
+            }
+        }
+
+        // ===== LOAD ENTRIES =====
+        function getEntries() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY_DIARY) || '[]');
+        }
+
+        function loadEntries() {
+            const selectedDate = document.getElementById('diaryDate').value;
+            const entries = getEntries();
+            const filteredEntries = entries.filter(e => e.date === selectedDate);
+            
+            const container = document.getElementById('entriesList');
+            
+            if (filteredEntries.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No entries for this date</p></div>';
+                return;
+            }
+            
+            container.innerHTML = filteredEntries.map(entry => `
+                <div class="card entry-card">
+                    <h3>${entry.title}</h3>
+                    <div class="entry-date">📅 ${new Date(entry.date).toLocaleDateString('en-US', { 
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                    })}</div>
+                    ${entry.notes ? `<p class="entry-description">${entry.notes}</p>` : ''}
+                    <video src="${entry.videoData}" style="width: 100%; border-radius: 8px; margin: 10px 0;"></video>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary btn-small" onclick="openVideoModal('${entry.id}')">▶ Play</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteEntry('${entry.id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openVideoModal(entryId) {
+            const entries = getEntries();
+            const entry = entries.find(e => e.id === entryId);
+            
+            if (!entry) return;
+            
+            selectedEntryId = entryId;
+            document.getElementById('modalTitle').textContent = entry.title;
+            document.getElementById('modalDate').textContent = new Date(entry.date).toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+            document.getElementById('modalNotes').textContent = entry.notes || '';
+            document.getElementById('modalVideo').src = entry.videoData;
+            
+            document.getElementById('videoModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('videoModal').classList.remove('active');
+            document.getElementById('modalVideo').pause();
+            selectedEntryId = null;
+        }
+
+        function deleteEntryFromModal() {
+            if (selectedEntryId && confirm('Delete this video entry? This cannot be undone.')) {
+                deleteEntry(selectedEntryId);
+                closeModal();
+            }
+        }
+
+        function deleteEntry(entryId) {
+            if (confirm('Delete this entry? This cannot be undone.')) {
+                const entries = getEntries().filter(e => e.id !== entryId);
+                localStorage.setItem(STORAGE_KEY_DIARY, JSON.stringify(entries));
+                loadEntries();
+            }
+        }
+
+        // ===== DATE NAVIGATION =====
+        function changeDate(days) {
+            const dateInput = document.getElementById('diaryDate');
+            const currentDate = new Date(dateInput.value);
+            currentDate.setDate(currentDate.getDate() + days);
+            dateInput.value = currentDate.toISOString().split('T')[0];
+            loadEntries();
+        }
+
+        function goToToday() {
+            document.getElementById('diaryDate').value = getTodayDate();
+            loadEntries();
+        }
+
+        function changeHabitDate(days) {
+            const dateInput = document.getElementById('habitDate');
+            const currentDate = new Date(dateInput.value);
+            currentDate.setDate(currentDate.getDate() + days);
+            dateInput.value = currentDate.toISOString().split('T')[0];
+            loadHabits();
+        }
+
+        function goToTodayHabits() {
+            document.getElementById('habitDate').value = getTodayDate();
+            loadHabits();
+        }
+
+        // ===== HABIT TRACKER =====
+        function getHabits() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY_HABITS) || '[]');
+        }
+
+        function getHabitLogs() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY_HABIT_LOGS) || '{}');
+        }
+
+        function showAddHabitForm() {
+            document.getElementById('addHabitForm').classList.remove('hidden');
+        }
+
+        function hideAddHabitForm() {
+            document.getElementById('addHabitForm').classList.add('hidden');
+            document.getElementById('habitName').value = '';
+            document.getElementById('habitUnit').value = '';
+            document.getElementById('habitTarget').value = '1';
+        }
+
+        function toggleHabitType() {
+            const type = document.getElementById('habitType').value;
+            document.getElementById('habitUnitGroup').classList.toggle('hidden', type === 'boolean');
+            document.getElementById('habitTargetGroup').classList.toggle('hidden', type === 'boolean');
+        }
+
+        function addHabit() {
+            const name = document.getElementById('habitName').value.trim();
+            const category = document.getElementById('habitCategory').value;
+            const type = document.getElementById('habitType').value;
+            
+            if (!name) {
+                alert('Please enter a habit name');
+                return;
+            }
+            
+            const habits = getHabits();
+            const habit = {
+                id: Date.now().toString(),
+                name,
+                category,
+                type,
+                unit: document.getElementById('habitUnit').value,
+                target: parseInt(document.getElementById('habitTarget').value) || 1,
+                createdAt: new Date().toISOString()
+            };
+            
+            habits.push(habit);
+            localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(habits));
+            
+            hideAddHabitForm();
+            loadHabits();
+        }
+
+        function loadHabits() {
+            const habits = getHabits();
+            const logs = getHabitLogs();
+            const selectedDate = document.getElementById('habitDate').value;
+            
+            const container = document.getElementById('habitsList');
+            
+            if (habits.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No habits created yet. Start building healthy habits!</p></div>';
+            } else {
+                container.innerHTML = habits.map(habit => {
+                    const dateKey = selectedDate;
+                    const todayLog = logs[habit.id]?.[dateKey] || { completed: false, value: 0 };
+                    
+                    const categoryEmoji = {
+                        sleep: '😴', study: '📚', exercise: '💪', 
+                        meditation: '🧘', reading: '📖', work: '💼', other: '⭐'
+                    };
+                    
+                    return `
+                        <div class="card habit-card">
+                            <div class="habit-header">
+                                <span class="habit-name">${categoryEmoji[habit.category] || '⭐'} ${habit.name}</span>
+                                <span class="habit-category">${habit.category}</span>
+                            </div>
+                            
+                            ${habit.type !== 'boolean' ? `
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${Math.min((todayLog.value / habit.target) * 100, 100)}%"></div>
+                                </div>
+                                <span class="progress-text">${todayLog.value || 0} / ${habit.target} ${habit.unit}</span>
+                            ` : ''}
+                            
+                            <div style="margin-top: 15px;">
+                                ${habit.type === 'boolean' ? `
+                                    <button class="btn ${todayLog.completed ? 'btn-success' : 'btn-secondary'} btn-small" 
+                                            onclick="toggleBoolHabit('${habit.id}')">
+                                        ${todayLog.completed ? '✅ Done!' : 'Mark as Done'}
+                                    </button>
+                                ` : `
+                                    <input type="number" 
+                                           value="${todayLog.value || 0}" 
+                                           min="0" 
+                                           style="width: 100px; display: inline-block;"
+                                           onchange="updateNumericHabit('${habit.id}', this.value)">
+                                    <span style="margin-left: 10px;">${habit.unit}</span>
+                                `}
+                            </div>
+                            
+                            <span class="streak-badge">🔥 ${calculateStreak(habit.id, logs)} day streak</span>
+                            
+                            <button class="btn btn-danger btn-small" style="margin-top: 10px; display: block;" 
+                                    onclick="deleteHabit('${habit.id}')">
+                                🗑️ Delete Habit
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Load statistics
+            loadHabitStats();
+        }
+
+        function toggleBoolHabit(habitId) {
+            const logs = getHabitLogs();
+            const dateKey = document.getElementById('habitDate').value;
+            
+            if (!logs[habitId]) logs[habitId] = {};
+            if (!logs[habitId][dateKey]) logs[habitId][dateKey] = { completed: false, value: 0 };
+            
+            logs[habitId][dateKey].completed = !logs[habitId][dateKey].completed;
+            
+            localStorage.setItem(STORAGE_KEY_HABIT_LOGS, JSON.stringify(logs));
+            loadHabits();
+        }
+
+        function updateNumericHabit(habitId, value) {
+            const logs = getHabitLogs();
+            const dateKey = document.getElementById('habitDate').value;
+            
+            if (!logs[habitId]) logs[habitId] = {};
+            if (!logs[habitId][dateKey]) logs[habitId][dateKey] = { completed: false, value: 0 };
+            
+            logs[habitId][dateKey].value = parseInt(value) || 0;
+            logs[habitId][dateKey].completed = logs[habitId][dateKey].value > 0;
+            
+            localStorage.setItem(STORAGE_KEY_HABIT_LOGS, JSON.stringify(logs));
+            loadHabits();
+        }
+
+        function deleteHabit(habitId) {
+            if (confirm('Delete this habit and all its data? This cannot be undone.')) {
+                const habits = getHabits().filter(h => h.id !== habitId);
+                const logs = getHabitLogs();
+                delete logs[habitId];
+                
+                localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(habits));
+                localStorage.setItem(STORAGE_KEY_HABIT_LOGS, JSON.stringify(logs));
+                loadHabits();
+            }
+        }
+
+        function calculateStreak(habitId, logs) {
+            if (!logs[habitId]) return 0;
+            
+            const habitLogs = logs[habitId];
+            let streak = 0;
+            const today = new Date();
+            
+            for (let i = 0; i < 365; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateKey = date.toISOString().split('T')[0];
+                
+                if (habitLogs[dateKey]?.completed) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+
+        function loadHabitStats() {
+            const habits = getHabits();
+            const logs = getHabitLogs();
+            const container = document.getElementById('habitStats');
+            
+            if (habits.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Track some habits to see your statistics!</p></div>';
+                return;
+            }
+            
+            container.innerHTML = habits.map(habit => {
+                const streak = calculateStreak(habit.id, logs);
+                const last30Days = getLast30DaysCompletion(habit.id, logs);
+                
+                return `
+                    <div class="card" style="text-align: center;">
+                        <h3>${habit.name}</h3>
+                        <div style="font-size: 36px; color: #667eea; margin: 10px 0;">🔥 ${streak}</div>
+                        <p>Day Streak</p>
+                        <div class="progress-bar" style="margin: 15px 0;">
+                            <div class="progress-fill" style="width: ${last30Days}%"></div>
+                        </div>
+                        <p style="color: #666;">${last30Days}% completion (last 30 days)</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getLast30DaysCompletion(habitId, logs) {
+            if (!logs[habitId]) return 0;
+            
+            let completed = 0;
+            const today = new Date();
+            
+            for (let i = 0; i < 30; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateKey = date.toISOString().split('T')[0];
+                
+                if (logs[habitId][dateKey]?.completed) {
+                    completed++;
+                }
+            }
+            
+            return Math.round((completed / 30) * 100);
+        }
+
+        // ===== DATA BACKUP & RESTORE =====
+        function exportData() {
+            const data = {
+                diary: getEntries(),
+                habits: getHabits(),
+                habitLogs: getHabitLogs(),
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `video-diary-backup-${getTodayDate()}.json`;
+            a.click();
+            
+            alert('✅ Backup downloaded successfully! Save this file safely.');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (confirm('This will replace all your current data. Are you sure?')) {
+                            localStorage.setItem(STORAGE_KEY_DIARY, JSON.stringify(data.diary || []));
+                            localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(data.habits || []));
+                            localStorage.setItem(STORAGE_KEY_HABIT_LOGS, JSON.stringify(data.habitLogs || {}));
+                            
+                            loadEntries();
+                            loadHabits();
+                            alert('✅ Data restored successfully!');
+                        }
+                    } catch (error) {
+                        alert('❌ Invalid backup file!');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('videoModal')) {
+                closeModal();
+            }
+        };
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
