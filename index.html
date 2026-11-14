@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Private Diary</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;600&display=swap">
 <script>try{var _t=localStorage.getItem("mydairy:theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=_t;}catch(e){}try{document.documentElement.dataset.accent=localStorage.getItem("mydairy:accent")||"indigo";}catch(e){document.documentElement.dataset.accent="indigo";}</script>
 <meta name="theme-color" content="#6366f1"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Diary">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -355,7 +355,7 @@ input:checked+.slider:before{transform:translateX(22px);}
   color-scheme:dark;
 }
 html{scroll-behavior:smooth;}
-body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--grad);color:var(--ink);-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter','Noto Sans Telugu','Segoe UI',system-ui,sans-serif;background:var(--grad);color:var(--ink);-webkit-font-smoothing:antialiased;}
 :root[data-theme="dark"] body{background:linear-gradient(135deg,#1a1442,#0e1020);}
 body:has(.dashboard.active){background:var(--bg);display:block;}
 ::selection{background:var(--accent);color:#fff;}
@@ -608,6 +608,45 @@ button:active:not(:disabled){transform:scale(.97);}
 }
 @media(min-width:769px){.sheet-bg{display:none!important;}}
 
+/* ── English practice ── */
+.en-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.en-bar .ft-tag{margin:0;}
+.en-chat{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;height:calc(100vh - 360px);min-height:380px;}
+.en-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;}
+.en-b{max-width:82%;padding:11px 14px;border-radius:16px;line-height:1.55;font-size:.95em;word-break:break-word;position:relative;color:var(--ink);}
+.en-b.me{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:5px;}
+.en-b.ai{align-self:flex-start;background:var(--surface2);border:1px solid var(--line);border-bottom-left-radius:5px;}
+.en-b.err{align-self:center;background:#fee2e2;color:#991b1b;font-size:.88em;}
+:root[data-theme="dark"] .en-b.err{background:#3a1a1f;color:#fca5a5;}
+.en-b .spk{position:absolute;right:-8px;bottom:-10px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--accent);cursor:pointer;font-size:.8em;}
+.en-b.ai{margin-bottom:6px;}
+.en-typing{align-self:flex-start;color:var(--muted);font-size:.85em;padding:4px 8px;}
+.en-chips{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px 0;border-top:1px solid var(--line);}
+.en-chips button{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:999px;padding:7px 12px;font:inherit;font-size:.82em;cursor:pointer;}
+.en-chips button:hover{border-color:var(--accent);color:var(--accent);}
+.en-comp{display:flex;gap:8px;padding:12px 14px;align-items:flex-end;}
+.en-comp textarea{flex:1;resize:none;max-height:120px;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;font:inherit;background:var(--surface2);color:var(--ink);}
+.en-comp button{width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;font-size:1.05em;flex-shrink:0;}
+.en-send{background:var(--grad);color:#fff;}
+.en-mic{background:var(--surface2);color:var(--ink);border:1px solid var(--line)!important;}
+.en-mic.rec{background:#ef4444;color:#fff;animation:blink 1s infinite;}
+.en-week{background:var(--glass);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.en-week>summary{cursor:pointer;padding:14px 16px;font-weight:600;color:var(--ink);display:flex;gap:10px;align-items:center;list-style:none;}
+.en-week>summary::-webkit-details-marker{display:none;}
+.en-week>summary small{margin-left:auto;color:var(--muted);font-weight:500;}
+.en-wk-body{padding:0 16px 14px;}
+.en-wk-body .meta{font-size:.84em;color:var(--ink2);line-height:1.7;margin-bottom:10px;padding:10px 12px;background:var(--accent-soft);border-radius:11px;}
+.en-day{display:flex;gap:10px;align-items:flex-start;padding:9px 6px;border-top:1px dashed var(--line);font-size:.9em;color:var(--ink);}
+.en-day input{width:18px;height:18px;margin-top:3px;accent-color:#10b981;flex-shrink:0;}
+.en-day.today{background:var(--accent-soft);border-radius:10px;border-top-color:transparent;}
+.en-day .d{font-weight:700;min-width:48px;color:var(--accent);}
+.en-day.done .tx{color:var(--muted);text-decoration:line-through;}
+.en-word{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);margin-bottom:8px;color:var(--ink);}
+.en-word b{font-size:1.02em;}.en-word .te{color:var(--accent);}.en-word .ex{grid-column:1/-1;font-size:.84em;color:var(--muted);}
+.en-fix{padding:10px 14px;border-left:4px solid #f59e0b;background:var(--surface2);border-radius:0 12px 12px 0;margin-bottom:8px;font-size:.9em;color:var(--ink);}
+.en-fix s{color:#ef4444;}.en-fix .ok{color:#10b981;font-weight:600;}
+@media(max-width:768px){.en-chat{height:calc(100dvh - 330px);}.en-b{max-width:90%;}}
+
 .switch-user-btn{display:none!important;}
 .sb-private{font-size:.72em;color:#8f96c8;text-align:center;padding:2px 0 6px;}
 </style>
@@ -718,6 +757,8 @@ button:active:not(:disabled){transform:scale(.97);}
       <li class="nav-tab" onclick="switchTab('papers',this)"> <i class="fas fa-scroll"></i> Paper Summaries</li>
       <li class="nav-sep">Plan</li>
       <li class="nav-tab" onclick="switchTab('flowmap',this)"> <i class="fas fa-sitemap"></i> Flow Map</li>
+      <li class="nav-sep">Learn</li>
+      <li class="nav-tab" onclick="switchTab('english',this)"><i class="fas fa-language"></i> English Practice</li>
       <li class="nav-sep">Account</li>
       <li class="nav-tab" onclick="switchTab('profile',this)"> <i class="fas fa-user-cog"></i> Profile</li>
       <li class="nav-tab" onclick="switchTab('settings',this)"><i class="fas fa-cogs"></i> Customize Habits</li>
@@ -946,6 +987,32 @@ button:active:not(:disabled){transform:scale(.97);}
       <div id="ftBody"></div>
     </div>
 
+    <!-- ENGLISH PRACTICE -->
+    <div id="tab-english" class="tab-content">
+      <div class="page-header"><h1>🗣️ English Practice</h1><p>Talk to your AI teacher every day. It teaches in simple English and explains in తెలుగు. A 90-day plan keeps you on track.</p></div>
+      <div class="ft-pills" id="engPills">
+        <button data-t="talk" class="on">💬 Talk</button><button data-t="plan">📅 90-Day Plan</button><button data-t="words">📚 My Words</button><button data-t="setup">⚙️ Setup</button>
+      </div>
+      <div id="engTalk">
+        <div class="en-bar"><span class="ft-tag" id="engToday"></span><span class="ft-sub" id="engStreak"></span></div>
+        <div class="en-chat">
+          <div class="en-msgs" id="engMsgs"></div>
+          <div class="en-chips">
+            <button onclick="engLesson()">▶ Start today's lesson</button><button onclick="engQuick('chat')">💬 Daily chat</button>
+            <button onclick="engQuick('check')">✏️ Check my sentence</button><button onclick="engQuick('telugu')">తెలుగులో చెప్పు</button><button onclick="engQuick('quiz')">🧠 Quiz me</button>
+          </div>
+          <div class="en-comp">
+            <button class="en-mic" id="engMic" onclick="engMic()" title="Speak (English)" aria-label="Speak"><i class="fas fa-microphone"></i></button>
+            <textarea id="engInput" rows="1" placeholder="Type in English (or Telugu, if you are stuck)…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();engSendInput();}"></textarea>
+            <button class="en-send" onclick="engSendInput()" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+      <div id="engPlan" style="display:none"></div>
+      <div id="engWords" style="display:none"></div>
+      <div id="engSetup" style="display:none"></div>
+    </div>
+
     <!-- PROFILE -->
     <div id="tab-profile" class="tab-content">
       <div class="page-header"><h1>👤 Profile & Settings</h1></div>
@@ -1040,7 +1107,7 @@ function lsGet(k){try{return localStorage.getItem(NS+k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(NS+k,v);return true;}catch(e){return false;}}
 let SCRIPT_URL=lsGet('scriptUrl')||'';
 const CLOUD=()=>!!SCRIPT_URL;
-const DATA_TYPES=['habits','notes','todos','settings','papers','notesfiles','flowmap','fitness'];
+const DATA_TYPES=['habits','notes','todos','settings','papers','notesfiles','flowmap','fitness','english'];
 let _key=null;
 const _enc=new TextEncoder(),_dec=new TextDecoder();
 const b64=u8=>{let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s);};
@@ -1049,7 +1116,7 @@ async function deriveKey(pw,salt){const base=await crypto.subtle.importKey('raw'
 async function seal(key,text){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,_enc.encode(text))),out=new Uint8Array(12+ct.length);out.set(iv);out.set(ct,12);return b64(out);}
 async function unseal(key,s){const u=unb64(s);return _dec.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},key,u.subarray(12)));}
 function lcfg(){try{return JSON.parse(lsGet('cfg'));}catch(e){return null;}}
-function unlockedClear(){try{sessionStorage.removeItem(NS+'unlocked');}catch(e){}_key=null;}
+function unlockedClear(){try{sessionStorage.removeItem(NS+'unlocked');}catch(e){}_key=null;try{engStop();}catch(e){}eng=null;}
 async function localApi(p){
   const cfg=lcfg();
   switch(p.action){
@@ -1078,7 +1145,7 @@ async function localApi(p){
       if(!_key)return {success:false,message:'Locked'};
       const out={};
       for(const t of DATA_TYPES){const raw=lsGet('d:'+t);let v=null;if(raw){try{v=JSON.parse(await unseal(_key,raw));}catch(e){}}
-        out[t]=v!==null?v:(t==='papers'?[]:(t==='settings'||t==='flowmap'||t==='fitness')?null:{});}
+        out[t]=v!==null?v:(t==='papers'?[]:(t==='settings'||t==='flowmap'||t==='fitness'||t==='english')?null:{});}
       return {success:true,message:'Loaded',data:out};}
     case 'saveVideoToDrive':case 'saveAudioToDrive':
       return {success:false,message:'Drive upload needs your own Google connection (Profile → Storage). Use "Download locally" instead.'};
@@ -1276,7 +1343,7 @@ async function selectUser(userId){
       if(d.notes){window._notesCache=d.notes; applyTodayNotes(d.notes);}
       if(d.todos)  window._todos=d.todos||{};
       if(d.papers) window._papers=d.papers||[];
-      fmLoad(d.flowmap); ftLoad(d.fitness); homeRender();
+      fmLoad(d.flowmap); ftLoad(d.fitness); engLoad(d.english); homeRender();
       if(d.notesfiles) window._notesFiles=d.notesfiles||{};
       renderNotesFiles(); renderPapers(); renderVideoEntries(); renderAudioEntries();
       setSyncStatus('synced','✅ Synced');
@@ -1638,6 +1705,7 @@ function switchTab(tabName,el){
   modernOnTab(tabName);
   if(tabName==='audio') renderAudioEntries();
   if(tabName==='fitness') ftRender();
+  if(tabName==='english') engRender();
   if(tabName==='notes') renderNotesFiles();
   if(tabName==='papers') renderPapers();
   if(tabName==='flowmap'){fmRender();if(!window._fmFitted||FM_MOBILE){window._fmFitted=true;fmFit();}}
@@ -2296,6 +2364,7 @@ function goTab(name){
   if(el){switchTab(name,el);closeMore();}
 }
 function modernOnTab(name){
+  if(name!=='english'&&typeof engStop==='function')engStop();
   document.querySelectorAll('#bnav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===name||(b.dataset.tab==='more'&&!['home','daily','fitness','flowmap'].includes(name))));
   const m=document.querySelector('.main-content');if(m)m.scrollTop=0;
 }
@@ -2362,7 +2431,7 @@ function homeRender(){
   body.innerHTML=`<div class="hm-grid">
     <div class="hm-card hm-hero"><h1>${greet}, ${fmEsc(name)} 👋</h1><p>${dateStr} · ${lines[new Date().getDate()%lines.length]}</p>
       <div class="hm-chips"><button class="hm-chip" onclick="document.getElementById('homeTask').focus()">＋ Task</button><button class="hm-chip" onclick="homeWater()">💧 +250 ml</button>
-      <button class="hm-chip" onclick="goTab('fitness')">🏋️ Workout</button><button class="hm-chip" onclick="goTab('audio')">🎙️ Record</button><button class="hm-chip" onclick="goTab('notes')">✍️ Journal</button><button class="hm-chip" onclick="goTab('flowmap')">🌳 Idea</button></div></div>
+      <button class="hm-chip" onclick="goTab('fitness')">🏋️ Workout</button><button class="hm-chip" onclick="goTab('audio')">🎙️ Record</button><button class="hm-chip" onclick="goTab('notes')">✍️ Journal</button><button class="hm-chip" onclick="goTab('flowmap')">🌳 Idea</button><button class="hm-chip" onclick="goTab('english')">🗣️ English</button></div></div>
     <div class="hm-tile" onclick="goTab('todo')">${hmRing(tasks.length?tDone/tasks.length:0,'#10b981',tasks.length?Math.round(tDone/tasks.length*100)+'%':'–')}<div><div class="l">Tasks</div><div class="v">${tDone}<small>/${tasks.length}</small></div><div class="s">${tPart?tPart+' in progress':'today'}</div></div></div>
     <div class="hm-tile" onclick="goTab('fitness')">${hmRing(wd&&wd.rest?1:(T.exTotal?T.exDone/T.exTotal:0),'#ef4444',wd&&wd.rest?'😴':(T.exTotal?Math.round(T.exDone/T.exTotal*100)+'%':'–'))}<div><div class="l">Workout</div><div class="v">${wd&&wd.rest?'Rest':T.exDone+'<small>/'+T.exTotal+'</small>'}</div><div class="s">${fmEsc(wd?wd.name.split('—')[0].trim():'')}</div></div></div>
     <div class="hm-tile" onclick="goTab('fitness')">${hmRing(T.kcal/S.kcal,'#f59e0b',Math.round(T.kcal/S.kcal*100)+'%')}<div><div class="l">Calories</div><div class="v">${T.kcal}<small>/${S.kcal}</small></div><div class="s">${T.prot}/${S.protein} g protein</div></div></div>
@@ -2451,6 +2520,289 @@ document.addEventListener('keydown',e=>{
 renderSwatches();
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 
+// ════════════════════════════════════════════════
+//  ENGLISH PRACTICE — AI teacher (Telugu → English), 90-day plan, words, daily auto-compaction
+//  AI: Google Gemini free tier, called straight from this browser with YOUR key. Key is stored with your encrypted diary data.
+// ════════════════════════════════════════════════
+const ENG_WEEKS=[
+  {t:'Hello & Me',g:'am / is / are · I have · a / an / the (Telugu has no articles!)',v:'greetings, family, numbers, colours',p:'short vs long vowels: sit/seat, full/fool',s:'Introduce yourself in 5 sentences'},
+  {t:'My Daily Routine',g:'simple present (I wake up…) · in / on / at for time',v:'daily verbs, days, months, time',p:'the -s ending: walks, plays, watches',s:'Describe your whole day'},
+  {t:'Food & Shopping',g:'some / any · much / many · countable vs uncountable',v:'food, prices, shops, quantities',p:'V vs W: very / water, vine / wine',s:'Order food and ask the price'},
+  {t:'Places & Directions',g:'there is / there are · in front of, next to, opposite · commands',v:'city places, transport, directions',p:'word stress: PHOtograph, phoTOgraphy',s:'Give directions to a place'},
+  {t:'Telling Stories',g:'simple past (regular + irregular) · did / didn\'t',v:'feelings, travel, weekend words',p:'-ed endings: worked /t/, played /d/, wanted /id/',s:'Tell about your last weekend'},
+  {t:'Plans & Future',g:'will · going to · present continuous for plans',v:'plans, weather, hobbies, invitations',p:'rising and falling voice in questions',s:'Talk about your plans for next month'},
+  {t:'Questions & Phone Calls',g:'wh-questions word order · can / could / would for polite requests',v:'phone, appointments, services',p:'weak sounds: schwa in "a-bout", "to-day"',s:'Role-play a phone call'},
+  {t:'Health & Advice',g:'should · must · have to · don\'t have to',v:'body, health, fitness, food habits',p:'sentence stress: content words are louder',s:'Give advice to a friend'},
+  {t:'Work & Study',g:'present perfect (I have worked…) · for / since',v:'jobs, studies, research, technology',p:'linking words: "an apple" → "anapple"',s:'Explain your work or study in 1 minute'},
+  {t:'Opinions & Reasons',g:'because / so / but / although · comparatives & superlatives',v:'opinion phrases, agreeing / disagreeing',p:'TH sounds: think, this, three, they',s:'Give an opinion with 2 reasons'},
+  {t:'Meetings & Emails',g:'first conditional (If… will) · formal vs informal English',v:'office / research English, email phrases',p:'reduced speech: gonna, wanna, want to',s:'Write and then say a short work update'},
+  {t:'Interviews & Presentations',g:'tense review · linking phrases (firstly, however, in conclusion)',v:'strengths, achievements, presentation phrases',p:'pace and pauses — speak slower, not louder',s:'Give a 2-minute self-introduction / mock interview'},
+  {t:'Fluency Week',g:'review everything · common idioms & phrasal verbs',v:'idioms, phrasal verbs, small talk',p:'shadowing: copy a native speaker\'s rhythm',s:'5 minutes of free conversation without stopping'}
+];
+const ENG_DAYTYPES=[
+  {ic:'📖',n:'Words',f:w=>`Learn 8 new words about "${w.v}". Make one sentence with each word, then say them to your AI teacher.`},
+  {ic:'🧩',n:'Grammar',f:w=>`Grammar: ${w.g}. Ask the AI to explain it in Telugu, then do 10 practice sentences.`},
+  {ic:'🎧',n:'Listen & shadow',f:w=>`Listen to 5–10 minutes of simple English (podcast / YouTube) and repeat aloud. Sound tip: ${w.p}.`},
+  {ic:'🎤',n:'Speak',f:w=>`Speaking challenge: ${w.s}. Use the 🎤 mic in Talk for 10 minutes.`},
+  {ic:'✍️',n:'Write',f:w=>`Write 6–8 sentences about "${w.t}" in your diary, then paste them to the AI to correct.`},
+  {ic:'🔁',n:'Review',f:w=>`Review My Words and My Mistakes. Ask the AI to quiz you.`},
+  {ic:'🌟',n:'Free chat + mini test',f:w=>`15 minutes of free conversation, then ask for a mini test on this week. Rate yourself 1–5.`}
+];
+const ENG_DEFAULT_MODEL='gemini-2.5-flash-lite';
+let eng=null,engTab='talk',engBusy=false,engRec=null,engErr='',engSaveT=null;
+
+function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak:false,autoSend:true,rate:0.9},start:ftToday(),memory:'',today:{date:ftToday(),msgs:[]},words:[],mistakes:[],log:{},plan:{}};}
+function engLoad(remote){
+  eng=(remote&&remote.cfg)?remote:engDefaults();
+  const d=engDefaults();Object.keys(d).forEach(k=>{if(eng[k]===undefined)eng[k]=d[k];});eng.cfg=Object.assign({},d.cfg,eng.cfg);
+  if(CLOUD())eng.cfg.key=lsGet('geminiKey')||'';
+  engRollover().then(()=>{if(document.getElementById('tab-english').classList.contains('active'))engRender();});
+}
+function engSaveSoon(){clearTimeout(engSaveT);engSaveT=setTimeout(engSaveNow,1000);}
+function engSaveNow(){
+  clearTimeout(engSaveT);if(!eng||!currentUser)return;
+  const copy=JSON.parse(JSON.stringify(eng));
+  if(CLOUD()){lsSet('geminiKey',eng.cfg.key||'');delete copy.cfg.key;} // never put the key in the Google Sheet
+  return syncToSheets('english',copy);
+}
+function engDayNo(){return Math.floor((new Date(ftToday()+'T00:00:00')-new Date(eng.start+'T00:00:00'))/86400000)+1;}
+function engPlanFor(n){const c=Math.min(Math.max(n,1),90);return {n:c,w:ENG_WEEKS[Math.min(12,Math.ceil(c/7)-1)],wi:Math.min(12,Math.ceil(c/7)-1),d:ENG_DAYTYPES[(c-1)%7]};}
+function engStreak(){let n=0;for(let i=0;i<400;i++){const d=ftShift(ftToday(),-i);if((eng.log[d]&&eng.log[d].msgs>0)||(d===eng.today.date&&eng.today.msgs.some(m=>m.role==='user')))n++;else if(i>0)break;}return n;}
+
+// ── AI ──
+function engSystem(){
+  const name=(currentUser&&currentUser.displayName)||'the learner',day=engDayNo(),p=engPlanFor(day);
+  return `You are "Teacher", a warm, patient English speaking coach for ${name}, an adult whose native language is Telugu. Level: beginner to lower-intermediate; adapt to what they write.
+STYLE
+- Use SIMPLE English: short sentences, common words. Keep replies short (about 60-120 words) unless asked for more.
+- Reply naturally to what they said, then continue the conversation with ONE easy question.
+- If they made mistakes (max 2 per reply): add a line "✏️ Better: <corrected sentence>" and ONE short explanation in Telugu script (తెలుగులో). If no mistakes, praise them in a few words.
+- Teach at most 1-2 useful new words per reply as "💡 word = తెలుగు అర్థం" (with a tiny example).
+- If they write in Telugu, or ask you to explain, explain in Telugu with English examples. Remember Telugu has no articles (a/an/the), different word order (SOV vs SVO) and V/W and TH sound difficulties; help with these gently.
+- Be encouraging. Never mock. Never give long lectures.
+TODAY: Day ${p.n} of 90, week "${p.w.t}" (${p.d.n} day). Grammar focus: ${p.w.g}. Vocabulary theme: ${p.w.v}. Pronunciation: ${p.w.p}. Speaking goal: ${p.w.s}.
+WHAT YOU REMEMBER ABOUT THE LEARNER FROM EARLIER DAYS:
+${eng.memory||'(nothing yet — this is the beginning)'}
+MACHINE LINES (hidden from the learner; put them at the very END of every reply, each on its own line, leave empty if none):
+[[words: word|తెలుగు అర్థం|short example; word2|తెలుగు అర్థం|short example]]
+[[fix: wrong sentence => corrected sentence | short Telugu note; ...]]`;
+}
+async function engGemini(system,contents,maxTokens){
+  const url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(eng.cfg.model||ENG_DEFAULT_MODEL)+':generateContent';
+  let r;
+  try{r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':eng.cfg.key},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.7,maxOutputTokens:maxTokens||900}})});}
+  catch(e){throw new Error('Cannot reach Google. Check your internet connection. / ఇంటర్నెట్ చెక్ చేయండి.');}
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){
+    const m=(j.error&&j.error.message)||('HTTP '+r.status);
+    if(r.status===429)throw new Error('Free limit reached for now — wait a minute, or try again tomorrow. / ఉచిత పరిమితి అయిపోయింది, కాసేపు ఆగండి.');
+    if(r.status===404)throw new Error('This model is not available. Open Setup → "Test connection" to pick a working one.');
+    if(r.status===400&&/API key/i.test(m)||r.status===403)throw new Error('The API key was rejected. Check it in Setup. ('+m+')');
+    throw new Error(m);
+  }
+  const parts=(((j.candidates||[])[0]||{}).content||{}).parts||[];
+  const txt=parts.map(p=>p.text||'').join('').trim();
+  if(!txt)throw new Error('The AI gave no answer (it may have been blocked). Try rephrasing.');
+  return txt;
+}
+function engContents(msgs){
+  const out=[];
+  msgs.filter(m=>m.role==='user'||m.role==='model').forEach(m=>{
+    if(out.length&&out[out.length-1].role===m.role)out[out.length-1].parts[0].text+='\n'+m.text;
+    else out.push({role:m.role,parts:[{text:m.text}]});
+  });
+  while(out.length&&out[0].role!=='user')out.shift();
+  return out;
+}
+function engParse(raw){
+  const words=[],fixes=[];
+  let txt=raw.replace(/\[\[\s*words\s*:([\s\S]*?)\]\]/gi,(_,b)=>{b.split(';').forEach(x=>{const a=x.split('|').map(s=>s.trim());if(a[0])words.push({w:a[0],te:a[1]||'',ex:a[2]||''});});return '';});
+  txt=txt.replace(/\[\[\s*fix\s*:([\s\S]*?)\]\]/gi,(_,b)=>{b.split(';').forEach(x=>{const m=x.split('|'),pr=(m[0]||'').split('=>');if(pr.length>1&&pr[1].trim())fixes.push({wrong:pr[0].trim(),right:pr[1].trim(),note:(m[1]||'').trim()});});return '';});
+  return {txt:txt.replace(/\n{3,}/g,'\n\n').trim(),words,fixes};
+}
+function engKeep(parsed){
+  const d=ftToday();
+  parsed.words.forEach(w=>{if(!eng.words.some(x=>x.w.toLowerCase()===w.w.toLowerCase()))eng.words.unshift(Object.assign({d},w));});
+  parsed.fixes.forEach(f=>eng.mistakes.unshift(Object.assign({d},f)));
+  eng.words=eng.words.slice(0,500);eng.mistakes=eng.mistakes.slice(0,200);
+}
+
+// ── daily auto-compaction ──
+async function engCompact(msgs){
+  const real=msgs.filter(m=>m.role==='user'||m.role==='model');if(!real.length)return;
+  const transcript=real.map(m=>(m.role==='user'?'Learner: ':'Teacher: ')+m.text).join('\n').slice(-6000);
+  const prompt=`Update the learner's memory notes. Merge the OLD MEMORY with what happened in the new conversation. Output ONLY the new notes, max 900 characters, as short bullet points covering: estimated level, mistakes that keep repeating (Telugu-speaker patterns), words learned recently, topics they enjoy, and what to practise next. Keep Telugu words where helpful.\n\nOLD MEMORY:\n${eng.memory||'(none)'}\n\nCONVERSATION:\n${transcript}`;
+  try{
+    if(!eng.cfg.key)throw new Error('no key');
+    eng.memory=(await engGemini('You write compact learner-progress notes for an English tutor.',[{role:'user',parts:[{text:prompt}]}],500)).slice(0,1200);
+  }catch(e){ // offline fallback: keep a tiny log line so nothing is lost
+    const n=real.filter(m=>m.role==='user').length;
+    eng.memory=((eng.memory?eng.memory+'\n':'')+'• '+ftToday()+': practised ('+n+' messages)').slice(-900);
+  }
+  engSaveSoon();
+}
+async function engRollover(){
+  const t=ftToday();if(eng.today.date===t)return;
+  const old=eng.today;eng.today={date:t,msgs:[]};
+  await engCompact(old.msgs);engSaveSoon();
+}
+async function engCompactNow(){
+  if(!eng.today.msgs.length){alert('Nothing to compact yet.');return;}
+  const m=eng.today.msgs.splice(0,eng.today.msgs.length);showLoading(true);await engCompact(m);showLoading(false);engRender();alert('Done — today\'s chat was summarised into your memory notes.');
+}
+
+// ── chat ──
+async function engSend(text){
+  text=(text||'').trim();if(!text||engBusy)return;
+  if(!eng.cfg.key){engTab='setup';engRender();return;}
+  engBusy=true;engErr='';
+  try{
+    await engRollover();
+    eng.today.msgs.push({role:'user',text});
+    const d=ftToday();eng.log[d]=eng.log[d]||{msgs:0};eng.log[d].msgs++;
+    engRender();
+    if(eng.today.msgs.length>28)await engCompact(eng.today.msgs.splice(0,20)); // long day: fold the oldest part into memory
+    const raw=await engGemini(engSystem(),engContents(eng.today.msgs),900);
+    const p=engParse(raw);engKeep(p);
+    eng.today.msgs.push({role:'model',text:p.txt||raw});
+    if(eng.cfg.autoSpeak)engSpeak(p.txt);
+  }catch(e){engErr=e.message||String(e);}
+  engBusy=false;engSaveSoon();engRender();
+}
+function engSendInput(){const i=document.getElementById('engInput');const t=i.value;i.value='';i.style.height='auto';engSend(t);}
+function engLesson(){const p=engPlanFor(engDayNo());engSend(`Please start today's lesson. Today is Day ${p.n}, "${p.w.t}", a ${p.d.n} day. ${p.d.f(p.w)} Teach me briefly in simple English with Telugu help, then practise step by step with me.`);}
+function engQuick(k){
+  const w=eng.words.slice(0,10).map(x=>x.w).join(', ');
+  if(k==='chat')engSend('Let us have a friendly daily conversation. Ask me about my day, one easy question at a time, and correct me gently.');
+  else if(k==='telugu')engSend('Please explain your last message in Telugu, with the English examples.');
+  else if(k==='quiz')engSend(w?`Quiz me on these words one by one (I answer each): ${w}. Give the Telugu meaning after my answer.`:'Give me a short quiz (5 questions) on today\'s topic, one question at a time.');
+  else if(k==='check'){const i=document.getElementById('engInput');i.value='Please check my sentence: ';i.focus();}
+}
+function engEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function engFmt(s){return engEsc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');}
+
+// ── voice ──
+function engSpeakable(s){return s.replace(/[ఀ-౿]+/g,' ').replace(/[*_`#>•]|[\u{1F300}-\u{1FAFF}☀-➿️]/gu,' ').replace(/\s+/g,' ').trim();}
+function engSpeak(text){
+  if(!('speechSynthesis' in window))return;
+  const t=engSpeakable(text);if(!t)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=eng.cfg.rate||0.9;
+  const vs=speechSynthesis.getVoices();const v=vs.find(x=>/en[-_]IN/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+function engStop(){try{speechSynthesis.cancel();}catch(e){}if(engRec){try{engRec.stop();}catch(e){}engRec=null;}const m=document.getElementById('engMic');if(m)m.classList.remove('rec');}
+function engMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Voice input is not supported in this browser. Please use Chrome or Edge (or type instead).');return;}
+  const btn=document.getElementById('engMic'),inp=document.getElementById('engInput');
+  if(engRec){engRec.stop();return;}
+  const r=new SR();r.lang='en-IN';r.interimResults=true;r.continuous=false;engRec=r;let said='';
+  r.onresult=e=>{let s='';for(let i=0;i<e.results.length;i++)s+=e.results[i][0].transcript;said=s;inp.value=s;};
+  r.onerror=e=>{engErr=e.error==='not-allowed'?'Microphone permission was blocked. Allow it in the browser address bar.':(e.error==='no-speech'?'':'Voice error: '+e.error);engRender();};
+  r.onend=()=>{engRec=null;btn.classList.remove('rec');if(eng.cfg.autoSend&&said.trim()){inp.value='';engSend(said);}};
+  speechSynthesis.cancel();r.start();btn.classList.add('rec');
+}
+
+// ── render ──
+function engRender(){
+  if(!eng){engLoad(null);return;}
+  document.querySelectorAll('#engPills button').forEach(b=>b.classList.toggle('on',b.dataset.t===engTab));
+  ['talk','plan','words','setup'].forEach(t=>{const el=document.getElementById('eng'+t[0].toUpperCase()+t.slice(1));if(el)el.style.display=t===engTab?'':'none';});
+  if(engTab==='talk')engRenderTalk();else if(engTab==='plan')engRenderPlan();else if(engTab==='words')engRenderWords();else engRenderSetup();
+}
+function engRenderTalk(){
+  const day=engDayNo(),p=engPlanFor(day),st=engStreak();
+  document.getElementById('engToday').textContent=`Day ${p.n}/90 · ${p.w.t} · ${p.d.ic} ${p.d.n}`;
+  document.getElementById('engStreak').textContent=st?`🔥 ${st}-day streak`:'Say hello to start your streak';
+  const box=document.getElementById('engMsgs');
+  let h='';
+  if(!eng.cfg.key)h+=`<div class="en-b ai">👋 Welcome! First add your <b>free Gemini key</b> in <a href="#" onclick="engTab='setup';engRender();return false" style="color:var(--accent)">Setup</a> (2 minutes) — then we can start talking. <br>నమస్కారం! ముందు Setup లో మీ ఉచిత కీ పెట్టండి.</div>`;
+  else if(!eng.today.msgs.length)h+=`<div class="en-b ai">Good ${new Date().getHours()<12?'morning':new Date().getHours()<17?'afternoon':'evening'}! 👋 I am your English teacher.<br>Today is <b>Day ${p.n}</b>: ${engEsc(p.w.t)}. Tap <b>▶ Start today's lesson</b>, or just say hello.<br>నమస్కారం! ఈ రోజు పాఠం మొదలుపెడదామా?</div>`;
+  eng.today.msgs.forEach((m,i)=>{
+    if(m.role==='user')h+=`<div class="en-b me">${engFmt(m.text)}</div>`;
+    else h+=`<div class="en-b ai">${engFmt(m.text)}<button class="spk" title="Listen" onclick="engSpeak(eng.today.msgs[${i}].text)"><i class="fas fa-volume-high"></i></button></div>`;
+  });
+  if(engBusy)h+='<div class="en-typing">Teacher is typing…</div>';
+  if(engErr)h+=`<div class="en-b err">⚠️ ${engEsc(engErr)}</div>`;
+  box.innerHTML=h;box.scrollTop=box.scrollHeight;
+}
+function engRenderPlan(){
+  const day=engDayNo(),cur=engPlanFor(day),done=Object.keys(eng.plan).filter(k=>eng.plan[k]).length;
+  let h=`<div class="ft-card"><h3>📅 Your 90-day plan</h3><div class="ft-sub" style="margin-bottom:10px">Started ${eng.start} · ${day>90?'plan finished — keep practising! 🎉':'today is Day '+cur.n}</div>
+    <div class="ft-bar ${done>=90?'ok':''}" style="margin-bottom:8px"><i style="width:${Math.round(done/90*100)}%"></i></div>
+    <div class="ft-sub">${done} of 90 days ticked · each day = a small task + 10 minutes of chat with your AI teacher</div>
+    <div class="ft-row"><button class="ft-btn ghost" onclick="engRestart()">Restart plan from today</button></div></div>`;
+  ENG_WEEKS.forEach((w,wi)=>{
+    const days=[];for(let d=wi*7+1;d<=Math.min(90,wi*7+7);d++)days.push(d);
+    const n=days.filter(d=>eng.plan[d]).length;
+    h+=`<details class="en-week" ${wi===cur.wi?'open':''}><summary>Week ${wi+1} · ${engEsc(w.t)}<small>${n}/${days.length}</small></summary><div class="en-wk-body">
+      <div class="meta"><b>Grammar:</b> ${engEsc(w.g)}<br><b>Words:</b> ${engEsc(w.v)}<br><b>Sounds:</b> ${engEsc(w.p)}<br><b>Speak:</b> ${engEsc(w.s)}</div>
+      ${days.map(d=>{const t=ENG_DAYTYPES[(d-1)%7];return `<label class="en-day ${d===cur.n&&day<=90?'today':''} ${eng.plan[d]?'done':''}"><input type="checkbox" data-day="${d}" ${eng.plan[d]?'checked':''}><span class="d">Day ${d}</span><span class="tx">${t.ic} <b>${t.n}</b> — ${engEsc(t.f(w))}</span></label>`;}).join('')}
+    </div></details>`;
+  });
+  document.getElementById('engPlan').innerHTML=h;
+}
+function engRenderWords(){
+  const q=(document.getElementById('engQ')||{}).value||'',ql=q.toLowerCase();
+  const ws=eng.words.filter(w=>!ql||w.w.toLowerCase().includes(ql)||(w.te||'').includes(q));
+  let h=`<div class="ft-card"><h3>📚 My Words <span class="ft-sub" style="font-weight:400">· ${eng.words.length} saved automatically from your chats</span></h3>
+    <div class="ft-row" style="margin:0 0 12px"><input id="engQ" class="grow" placeholder="Search words…" value="${engEsc(q)}" oninput="engRenderWords()" style="padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--ink);font:inherit"><button class="ft-btn" onclick="engTab='talk';engRender();engQuick('quiz')">🧠 Quiz me</button></div>
+    ${ws.length?ws.slice(0,150).map(w=>`<div class="en-word"><b>${engEsc(w.w)}</b><span class="te">${engEsc(w.te)}</span>${w.ex?`<span class="ex">“${engEsc(w.ex)}” · ${w.d}</span>`:''}</div>`).join(''):'<div class="hm-empty">No words yet — chat with your teacher and new words will appear here.</div>'}</div>
+    <div class="ft-card"><h3>✏️ My Mistakes <span class="ft-sub" style="font-weight:400">· learn from these</span></h3>
+    ${eng.mistakes.length?eng.mistakes.slice(0,60).map(m=>`<div class="en-fix"><s>${engEsc(m.wrong)}</s><br><span class="ok">${engEsc(m.right)}</span>${m.note?`<br><span class="ft-sub">${engEsc(m.note)}</span>`:''}</div>`).join(''):'<div class="hm-empty">Corrections will be collected here.</div>'}</div>`;
+  const keep=document.activeElement&&document.activeElement.id==='engQ';
+  document.getElementById('engWords').innerHTML=h;
+  if(keep){const i=document.getElementById('engQ');i.focus();i.setSelectionRange(i.value.length,i.value.length);}
+}
+function engRenderSetup(){
+  const c=eng.cfg;
+  document.getElementById('engSetup').innerHTML=`<div class="ft-card"><h3>🔑 AI connection (free)</h3>
+    <ol class="ft-tips"><li>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--accent)">aistudio.google.com/apikey</a> and sign in with your Google account.</li><li>Click <b>Create API key</b> (no payment details needed) and copy it.</li><li>Paste it below and press <b>Test connection</b>.</li></ol>
+    <p class="ft-sub" style="margin:10px 0">This uses Google's <b>free tier</b> with a small fast model — no separate charge. On the free tier Google may use prompts to improve its products, so don't type passwords or private details to your teacher. (Claude Pro can't be used for this — it has no key for apps.)</p>
+    <div class="ft-grid"><div style="grid-column:1/-1"><label>Gemini API key</label><input type="password" id="engKey" value="${engEsc(c.key)}" placeholder="AIza…" autocomplete="off"></div>
+    <div style="grid-column:1/-1"><label>Model</label><input id="engModel" value="${engEsc(c.model)}"></div></div>
+    <div class="ft-row"><button class="ft-btn" onclick="engSaveCfg(true)">Save &amp; test connection</button><button class="ft-btn ghost" onclick="engSaveCfg(false)">Save</button></div>
+    <div id="engCfgMsg" class="message" style="margin-top:12px"></div>
+    <p class="ft-sub" style="margin-top:10px">${CLOUD()?'Cloud mode: the key stays on this device only and is never written to your Google Sheet.':'Your key is stored encrypted together with your diary data. Backups you export do not include it.'}</p></div>
+  <div class="ft-card"><h3>🔊 Voice &amp; behaviour</h3>
+    <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSpeak?'checked':''} onchange="eng.cfg.autoSpeak=this.checked;engSaveSoon()"> Read the teacher's replies aloud automatically</label>
+    <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSend?'checked':''} onchange="eng.cfg.autoSend=this.checked;engSaveSoon()"> Send automatically when I finish speaking</label>
+    <label style="display:block;color:var(--ink)">Speaking speed: <b id="engRateV">${c.rate}</b> <input type="range" min="0.6" max="1.2" step="0.1" value="${c.rate}" oninput="eng.cfg.rate=+this.value;document.getElementById('engRateV').textContent=this.value;engSaveSoon()"></label>
+    <p class="ft-sub" style="margin-top:10px">Voice input uses your browser's speech service (Chrome/Edge — Chrome sends the audio to Google for recognition). It listens in English (India).</p></div>
+  <div class="ft-card"><h3>🧠 Daily auto-compact</h3>
+    <p class="ft-sub" style="margin-bottom:10px">Every new day, yesterday's chat is automatically summarised into a short memory note (level, repeated mistakes, new words) and the chat starts fresh — so the teacher remembers you without sending old conversations each time. Long chats are also folded in during the day.</p>
+    <div class="en-fix" style="border-left-color:var(--accent)">${eng.memory?engFmt(eng.memory):'<span class="ft-sub">No memory yet — it builds after your first day.</span>'}</div>
+    <div class="ft-row"><button class="ft-btn ghost" onclick="engCompactNow()">Compact today's chat now</button><button class="ft-btn danger" onclick="if(confirm('Clear today\\'s chat?')){eng.today.msgs=[];engSaveSoon();engRender();}">Clear today's chat</button></div></div>`;
+}
+async function engSaveCfg(test){
+  eng.cfg.key=document.getElementById('engKey').value.trim();eng.cfg.model=document.getElementById('engModel').value.trim()||ENG_DEFAULT_MODEL;
+  engSaveSoon();
+  if(!test){showMessage('engCfgMsg','✅ Saved','success');return;}
+  if(!eng.cfg.key){showMessage('engCfgMsg','Paste your API key first','error');return;}
+  showMessage('engCfgMsg','⏳ Testing…','info');
+  try{
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':eng.cfg.key}});
+    const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+    const ok=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
+    const clean=n=>!/preview|exp|image|tts|live|audio|thinking|embedding/i.test(n);
+    const pick=ok.filter(n=>/flash-lite/.test(n)&&clean(n)).sort().reverse()[0]||ok.filter(n=>/flash/.test(n)&&clean(n)).sort().reverse()[0];
+    if(!ok.includes(eng.cfg.model)&&pick)eng.cfg.model=pick;
+    document.getElementById('engModel').value=eng.cfg.model;
+    const reply=await engGemini('You are a friendly English teacher.',[{role:'user',parts:[{text:'Say hello in one short sentence.'}]}],60);
+    engSaveSoon();showMessage('engCfgMsg','✅ Connected with '+eng.cfg.model+' — “'+reply.slice(0,80)+'”','success');
+  }catch(e){showMessage('engCfgMsg','❌ '+(e.message||e),'error');}
+}
+function engRestart(){if(confirm('Restart the 90-day plan from today? Ticks will be cleared.')){eng.start=ftToday();eng.plan={};engSaveSoon();engRender();}}
+
+(function engInit(){
+  const pills=document.getElementById('engPills');if(!pills)return;
+  pills.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;engTab=b.dataset.t;engRender();});
+  document.getElementById('engPlan').addEventListener('change',e=>{const c=e.target.closest('[data-day]');if(!c)return;eng.plan[c.dataset.day]=c.checked;engSaveSoon();engRenderPlan();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&eng&&currentUser)engSaveNow();});
+  const ta=document.getElementById('engInput');ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=Math.min(120,ta.scrollHeight)+'px';});
+})();
+
 // ── Storage & backup ──
 function storageInit(){
   const info=document.getElementById('storageInfo');if(!info)return;
@@ -2461,6 +2813,7 @@ function storageInit(){
 async function exportBackup(){
   const r=await api({action:'load',userId:'user1'});
   if(!r.success){showMessage('storageMessage','❌ '+r.message,'error');return;}
+  if(r.data.english&&r.data.english.cfg)r.data.english.cfg.key=''; // never export the API key
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'mydairy',v:1,exported:new Date().toISOString(),data:r.data},null,2)],{type:'application/json'}));
   a.download='my-diary-backup-'+ftToday()+'.json';a.click();
