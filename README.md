@@ -7,9 +7,9 @@ This project is **completely independent** of any other diary: it has its own st
 
 ## English practice (Telugu → English)
 
-The **English Practice** tab has an AI teacher you can talk or type to every day, a 90-day plan, an automatic word list and a mistakes list.
+The **English Practice** tab is a speaking coach for someone who already knows English well and wants to sound more fluent and natural: an AI coach you talk or type to every day, a 90-day speaking plan, an automatic phrase list and a mistakes list.
 
-* The teacher replies in simple English and explains mistakes in తెలుగు.
+* The coach gives corrections, "more natural" phrasing, new phrases/idioms and pronunciation tips (including common Telugu-English patterns). Telugu is used only when you ask (configurable).
 * It uses Google's **Gemini free tier** (small, fast model) straight from your browser with **your own key** from <https://aistudio.google.com/apikey> — no separate charge. Paste it in *English Practice → Setup*. The key is stored encrypted with your diary data and is never put in backups or in a Google Sheet.
 * Every new day the previous chat is automatically **compacted** into a short memory note, so the teacher remembers your level and mistakes without resending old chats.
 * Voice: 🎤 speech input (Chrome/Edge) and 🔊 read-aloud use your browser's speech features.

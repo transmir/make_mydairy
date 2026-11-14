@@ -989,21 +989,22 @@ button:active:not(:disabled){transform:scale(.97);}
 
     <!-- ENGLISH PRACTICE -->
     <div id="tab-english" class="tab-content">
-      <div class="page-header"><h1>🗣️ English Practice</h1><p>Talk to your AI teacher every day. It teaches in simple English and explains in తెలుగు. A 90-day plan keeps you on track.</p></div>
+      <div class="page-header"><h1>🗣️ English Practice</h1><p>Speak with your AI coach every day — fluency, accent, natural phrasing and richer vocabulary. A 90-day speaking plan keeps you on track.</p></div>
       <div class="ft-pills" id="engPills">
-        <button data-t="talk" class="on">💬 Talk</button><button data-t="plan">📅 90-Day Plan</button><button data-t="words">📚 My Words</button><button data-t="setup">⚙️ Setup</button>
+        <button data-t="talk" class="on">💬 Talk</button><button data-t="plan">📅 90-Day Plan</button><button data-t="words">📚 My Phrases</button><button data-t="setup">⚙️ Setup</button>
       </div>
       <div id="engTalk">
         <div class="en-bar"><span class="ft-tag" id="engToday"></span><span class="ft-sub" id="engStreak"></span></div>
         <div class="en-chat">
           <div class="en-msgs" id="engMsgs"></div>
           <div class="en-chips">
-            <button onclick="engLesson()">▶ Start today's lesson</button><button onclick="engQuick('chat')">💬 Daily chat</button>
-            <button onclick="engQuick('check')">✏️ Check my sentence</button><button onclick="engQuick('telugu')">తెలుగులో చెప్పు</button><button onclick="engQuick('quiz')">🧠 Quiz me</button>
+            <button onclick="engLesson()">▶ Today's session</button><button onclick="engQuick('talk')">🎤 1-minute talk</button><button onclick="engQuick('chat')">💬 Free chat</button>
+            <button onclick="engQuick('role')">🎭 Role-play</button><button onclick="engQuick('pron')">👄 Pronunciation</button><button onclick="engQuick('check')">✏️ Check my sentence</button>
+            <button onclick="engQuick('quiz')">🧠 Quiz me</button><button onclick="engQuick('telugu')">తెలుగులో చెప్పు</button>
           </div>
           <div class="en-comp">
             <button class="en-mic" id="engMic" onclick="engMic()" title="Speak (English)" aria-label="Speak"><i class="fas fa-microphone"></i></button>
-            <textarea id="engInput" rows="1" placeholder="Type in English (or Telugu, if you are stuck)…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();engSendInput();}"></textarea>
+            <textarea id="engInput" rows="1" placeholder="Say or type something in English… (aim for 3–5 sentences)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();engSendInput();}"></textarea>
             <button class="en-send" onclick="engSendInput()" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
           </div>
         </div>
@@ -2521,37 +2522,37 @@ renderSwatches();
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 
 // ════════════════════════════════════════════════
-//  ENGLISH PRACTICE — AI teacher (Telugu → English), 90-day plan, words, daily auto-compaction
+//  ENGLISH PRACTICE — AI speaking coach (Telugu speaker → fluent English), 90-day plan, phrases, daily auto-compaction
 //  AI: Google Gemini free tier, called straight from this browser with YOUR key. Key is stored with your encrypted diary data.
 // ════════════════════════════════════════════════
 const ENG_WEEKS=[
-  {t:'Hello & Me',g:'am / is / are · I have · a / an / the (Telugu has no articles!)',v:'greetings, family, numbers, colours',p:'short vs long vowels: sit/seat, full/fool',s:'Introduce yourself in 5 sentences'},
-  {t:'My Daily Routine',g:'simple present (I wake up…) · in / on / at for time',v:'daily verbs, days, months, time',p:'the -s ending: walks, plays, watches',s:'Describe your whole day'},
-  {t:'Food & Shopping',g:'some / any · much / many · countable vs uncountable',v:'food, prices, shops, quantities',p:'V vs W: very / water, vine / wine',s:'Order food and ask the price'},
-  {t:'Places & Directions',g:'there is / there are · in front of, next to, opposite · commands',v:'city places, transport, directions',p:'word stress: PHOtograph, phoTOgraphy',s:'Give directions to a place'},
-  {t:'Telling Stories',g:'simple past (regular + irregular) · did / didn\'t',v:'feelings, travel, weekend words',p:'-ed endings: worked /t/, played /d/, wanted /id/',s:'Tell about your last weekend'},
-  {t:'Plans & Future',g:'will · going to · present continuous for plans',v:'plans, weather, hobbies, invitations',p:'rising and falling voice in questions',s:'Talk about your plans for next month'},
-  {t:'Questions & Phone Calls',g:'wh-questions word order · can / could / would for polite requests',v:'phone, appointments, services',p:'weak sounds: schwa in "a-bout", "to-day"',s:'Role-play a phone call'},
-  {t:'Health & Advice',g:'should · must · have to · don\'t have to',v:'body, health, fitness, food habits',p:'sentence stress: content words are louder',s:'Give advice to a friend'},
-  {t:'Work & Study',g:'present perfect (I have worked…) · for / since',v:'jobs, studies, research, technology',p:'linking words: "an apple" → "anapple"',s:'Explain your work or study in 1 minute'},
-  {t:'Opinions & Reasons',g:'because / so / but / although · comparatives & superlatives',v:'opinion phrases, agreeing / disagreeing',p:'TH sounds: think, this, three, they',s:'Give an opinion with 2 reasons'},
-  {t:'Meetings & Emails',g:'first conditional (If… will) · formal vs informal English',v:'office / research English, email phrases',p:'reduced speech: gonna, wanna, want to',s:'Write and then say a short work update'},
-  {t:'Interviews & Presentations',g:'tense review · linking phrases (firstly, however, in conclusion)',v:'strengths, achievements, presentation phrases',p:'pace and pauses — speak slower, not louder',s:'Give a 2-minute self-introduction / mock interview'},
-  {t:'Fluency Week',g:'review everything · common idioms & phrasal verbs',v:'idioms, phrasal verbs, small talk',p:'shadowing: copy a native speaker\'s rhythm',s:'5 minutes of free conversation without stopping'}
+  {t:'Your Baseline',g:'full-sentence speaking · tense control (past vs present perfect)',v:'natural connectors & fillers: well, actually, to be honest, I mean',p:'make your sound map: V/W, TH, retroflex T/D, schwa — pick your top 3 sounds',s:'Record a 2-minute self-introduction and get detailed AI feedback'},
+  {t:'Rhythm & Stress',g:'sentence stress · weak forms (content words loud, function words soft)',v:'everyday phrasal verbs: set up, figure out, carry on, run into',p:'English is stress-timed (Telugu is syllable-timed): word stress, schwa, weak "to / of / and"',s:'Describe your morning at natural speed with clear stress'},
+  {t:'Telugu-English Sounds',g:'articles (a / the / zero) with abstract and uncountable nouns',v:'collocations with make / do / take / have',p:'/v/ vs /w/ · /θ/ & /ð/ · aspirated p/t/k at word start · softer English /t d/ (not retroflex)',s:'Tongue twisters, then a 1-minute talk using minimal pairs'},
+  {t:'Fluency Without Translating',g:'stative verbs (I know, not "I am knowing") · present vs present continuous',v:'thinking-time phrases: let me think, how should I put it, what I mean is',p:'connected speech: "pick it up" → "pickitup", linking final consonants',s:'Talk 2 minutes non-stop — no silence longer than 2 seconds'},
+  {t:'Storytelling',g:'narrative tenses: past simple, past continuous, past perfect',v:'story phrases & time markers: out of the blue, by the time, eventually',p:'intonation for emotion, surprise and emphasis',s:'Tell a memorable story in 2 minutes'},
+  {t:'Opinions & Discussion',g:'agreeing / disagreeing politely · relative clauses · softening',v:'hedging: I tend to think, arguably, it seems to me',p:'rising vs falling intonation · contrastive stress',s:'Defend an opinion for 2 minutes against the AI\'s counter-arguments'},
+  {t:'Precise Vocabulary',g:'prepositions & word forms (discuss it, not "discuss about"; cope with, not "cope up")',v:'collocations and professional / academic vocabulary',p:'stress shifts: PREsent / preSENT, PHOtograph / phoTOgraphy',s:'Explain a complex topic simply in 2 minutes'},
+  {t:'Phrasal Verbs & Idioms',g:'separable phrasal verbs · idioms in context · international vs Indian English ("revert back", "prepone")',v:'20 high-frequency idioms',p:'reduced speech: gonna, wanna, kinda, gotta',s:'Use 10 idioms naturally in one conversation'},
+  {t:'Professional Speaking',g:'polite and indirect requests · first and second conditionals',v:'meeting and email language: circle back, on the same page, action items',p:'pace, pause and volume for clarity',s:'Lead a 3-minute status update as if in a meeting'},
+  {t:'Presentations',g:'signposting language · passive voice for formal speech',v:'presentation phrases: let me walk you through, to sum up',p:'thought groups: chunk your speech and pause between them',s:'Give a 5-minute talk on your field'},
+  {t:'Interviews & Small Talk',g:'present perfect for experience · third conditional for reflection',v:'STAR answers, small-talk topics and exits',p:'confident, falling intonation at the end of statements',s:'Mock interview, then 3 minutes of small talk'},
+  {t:'Native-Speed Listening',g:'reported speech · hypotheticals (If I were…)',v:'informal expressions and slang (use with care)',p:'shadowing at native speed: copy rhythm, not just words',s:'Retell a TED talk in your own words'},
+  {t:'Putting It Together',g:'your top 5 personal error patterns — fix them for good',v:'your personal phrase bank from My Phrases',p:'your 3 priority sounds',s:'10-minute free conversation, then compare with your Week 1 recording'}
 ];
 const ENG_DAYTYPES=[
-  {ic:'📖',n:'Words',f:w=>`Learn 8 new words about "${w.v}". Make one sentence with each word, then say them to your AI teacher.`},
-  {ic:'🧩',n:'Grammar',f:w=>`Grammar: ${w.g}. Ask the AI to explain it in Telugu, then do 10 practice sentences.`},
-  {ic:'🎧',n:'Listen & shadow',f:w=>`Listen to 5–10 minutes of simple English (podcast / YouTube) and repeat aloud. Sound tip: ${w.p}.`},
-  {ic:'🎤',n:'Speak',f:w=>`Speaking challenge: ${w.s}. Use the 🎤 mic in Talk for 10 minutes.`},
-  {ic:'✍️',n:'Write',f:w=>`Write 6–8 sentences about "${w.t}" in your diary, then paste them to the AI to correct.`},
-  {ic:'🔁',n:'Review',f:w=>`Review My Words and My Mistakes. Ask the AI to quiz you.`},
-  {ic:'🌟',n:'Free chat + mini test',f:w=>`15 minutes of free conversation, then ask for a mini test on this week. Rate yourself 1–5.`}
+  {ic:'📖',n:'Phrases',f:w=>`Upgrade your vocabulary: learn 8 natural phrases/collocations about "${w.v}". Use each one in a real sentence with your coach.`},
+  {ic:'👄',n:'Sound drill',f:w=>`Pronunciation: ${w.p}. Practise 10 minutes, record yourself, play it back, and ask the coach what to fix.`},
+  {ic:'🎧',n:'Shadowing',f:w=>`Listen to 10 minutes of native English (TED, podcast, interview). Shadow it — copy rhythm and intonation. Language focus: ${w.g}.`},
+  {ic:'🎤',n:'Speak',f:w=>`Timed talk: ${w.s}. Use the 🎤 mic, then ask for feedback on fluency, grammar, vocabulary and naturalness.`},
+  {ic:'🗣️',n:'Discuss',f:w=>`Discussion: debate an opinion or role-play with your coach for 15 minutes. Try to use this week's phrases and "${w.g}".`},
+  {ic:'🎭',n:'Real-life role-play',f:w=>`Role-play a real situation (interview, meeting, phone call, networking). Then review My Mistakes and fix them aloud.`},
+  {ic:'🌟',n:'Free chat + reflection',f:w=>`20 minutes of free conversation on anything. Ask the coach for your 3 strongest points and 3 things to improve this week.`}
 ];
 const ENG_DEFAULT_MODEL='gemini-2.5-flash-lite';
 let eng=null,engTab='talk',engBusy=false,engRec=null,engErr='',engSaveT=null;
 
-function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak:false,autoSend:true,rate:0.9},start:ftToday(),memory:'',today:{date:ftToday(),msgs:[]},words:[],mistakes:[],log:{},plan:{}};}
+function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak:false,autoSend:true,rate:1,level:'upper-intermediate',telugu:'ask'},start:ftToday(),memory:'',today:{date:ftToday(),msgs:[]},words:[],mistakes:[],log:{},plan:{}};}
 function engLoad(remote){
   eng=(remote&&remote.cfg)?remote:engDefaults();
   const d=engDefaults();Object.keys(d).forEach(k=>{if(eng[k]===undefined)eng[k]=d[k];});eng.cfg=Object.assign({},d.cfg,eng.cfg);
@@ -2571,21 +2572,25 @@ function engStreak(){let n=0;for(let i=0;i<400;i++){const d=ftShift(ftToday(),-i
 
 // ── AI ──
 function engSystem(){
-  const name=(currentUser&&currentUser.displayName)||'the learner',day=engDayNo(),p=engPlanFor(day);
-  return `You are "Teacher", a warm, patient English speaking coach for ${name}, an adult whose native language is Telugu. Level: beginner to lower-intermediate; adapt to what they write.
+  const name=(currentUser&&currentUser.displayName)||'the learner',day=engDayNo(),p=engPlanFor(day),c=eng.cfg;
+  const tel=c.telugu==='off'?'Do not use Telugu at all.':(c.telugu==='light'?'After a correction you may add ONE very short Telugu note (తెలుగు script) when it truly helps.':'Use English only. Use Telugu (తెలుగు script) ONLY if the learner writes in Telugu or asks for it, or for a really tricky explanation.');
+  return `You are "Coach", a friendly, sharp English SPEAKING coach for ${name}, an adult whose native language is Telugu. They studied in English medium and know the basics and grammar well. Level: ${c.level}. Goal: sound fluent, natural and confident when speaking — better fluency, accent clarity, richer vocabulary, and natural phrasing.
 STYLE
-- Use SIMPLE English: short sentences, common words. Keep replies short (about 60-120 words) unless asked for more.
-- Reply naturally to what they said, then continue the conversation with ONE easy question.
-- If they made mistakes (max 2 per reply): add a line "✏️ Better: <corrected sentence>" and ONE short explanation in Telugu script (తెలుగులో). If no mistakes, praise them in a few words.
-- Teach at most 1-2 useful new words per reply as "💡 word = తెలుగు అర్థం" (with a tiny example).
-- If they write in Telugu, or ask you to explain, explain in Telugu with English examples. Remember Telugu has no articles (a/an/the), different word order (SOV vs SVO) and V/W and TH sound difficulties; help with these gently.
-- Be encouraging. Never mock. Never give long lectures.
-TODAY: Day ${p.n} of 90, week "${p.w.t}" (${p.d.n} day). Grammar focus: ${p.w.g}. Vocabulary theme: ${p.w.v}. Pronunciation: ${p.w.p}. Speaking goal: ${p.w.s}.
+- Speak natural, native-like English at a level slightly above theirs. Be concise (about 60-140 words) unless they ask for more. Do NOT explain basic grammar they already know.
+- Reply naturally to what they said, then keep the conversation going with ONE engaging question (opinion, story or scenario — not trivial questions).
+- Give at most 2 improvements per reply, only the most valuable ones:
+  "✏️ Better: <corrected sentence>" for real errors, and "🗣️ More natural: <how a native speaker would say it>" for correct but unnatural phrasing.
+- Teach 1-2 useful phrases, collocations or idioms per reply as "💡 phrase — meaning" (meaning in simple English).
+- Watch for common Telugu / Indian-English patterns and flag them kindly: article use (a/the/none), "discuss about", "cope up", "revert back", "prepone", "I am knowing", "only" for emphasis, missing past perfect, V/W and TH sounds, retroflex T/D, syllable-timed rhythm, and flat intonation.
+- The learner's text may come from speech recognition. If a word looks odd or wrong, it may be a pronunciation clue — say what you think they meant and how to pronounce it (simple respelling like "WAH-ter" plus IPA when useful).
+- Pace/fluency: if their message is very short or hesitant, push them to say more ("Tell me more — try 4-5 sentences"). Praise real progress briefly. Never mock.
+- ${tel}
+TODAY: Day ${p.n} of 90, week "${p.w.t}" (${p.d.n}). Language focus: ${p.w.g}. Phrases theme: ${p.w.v}. Sound focus: ${p.w.p}. Speaking goal: ${p.w.s}.
 WHAT YOU REMEMBER ABOUT THE LEARNER FROM EARLIER DAYS:
-${eng.memory||'(nothing yet — this is the beginning)'}
+${eng.memory||'(nothing yet — this is the beginning; get to know their interests and level)'}
 MACHINE LINES (hidden from the learner; put them at the very END of every reply, each on its own line, leave empty if none):
-[[words: word|తెలుగు అర్థం|short example; word2|తెలుగు అర్థం|short example]]
-[[fix: wrong sentence => corrected sentence | short Telugu note; ...]]`;
+[[words: phrase|meaning (Telugu only if they asked for Telugu)|short example sentence; phrase2|meaning|example]]
+[[fix: what they said => better version | very short reason; ...]]`;
 }
 async function engListModels(){
   const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':eng.cfg.key}});
@@ -2646,7 +2651,7 @@ function engKeep(parsed){
 // ── daily auto-compaction ──
 async function engCompact(msgs){
   const real=msgs.filter(m=>m.role==='user'||m.role==='model');if(!real.length)return;
-  const transcript=real.map(m=>(m.role==='user'?'Learner: ':'Teacher: ')+m.text).join('\n').slice(-6000);
+  const transcript=real.map(m=>(m.role==='user'?'Learner: ':'Coach: ')+m.text).join('\n').slice(-6000);
   const prompt=`Update the learner's memory notes. Merge the OLD MEMORY with what happened in the new conversation. Output ONLY the new notes, max 900 characters, as short bullet points covering: estimated level, mistakes that keep repeating (Telugu-speaker patterns), words learned recently, topics they enjoy, and what to practise next. Keep Telugu words where helpful.\n\nOLD MEMORY:\n${eng.memory||'(none)'}\n\nCONVERSATION:\n${transcript}`;
   try{
     if(!eng.cfg.key)throw new Error('no key');
@@ -2686,13 +2691,19 @@ async function engSend(text){
   engBusy=false;engSaveSoon();engRender();
 }
 function engSendInput(){const i=document.getElementById('engInput');const t=i.value;i.value='';i.style.height='auto';engSend(t);}
-function engLesson(){const p=engPlanFor(engDayNo());engSend(`Please start today's lesson. Today is Day ${p.n}, "${p.w.t}", a ${p.d.n} day. ${p.d.f(p.w)} Teach me briefly in simple English with Telugu help, then practise step by step with me.`);}
+function engLesson(){const p=engPlanFor(engDayNo());engSend(`Let's do today's session. It is Day ${p.n}, week "${p.w.t}", a ${p.d.n} day. Task: ${p.d.f(p.w)} Guide me through it step by step, keep it interactive, and make me speak a lot.`);}
 function engQuick(k){
-  const w=eng.words.slice(0,10).map(x=>x.w).join(', ');
-  if(k==='chat')engSend('Let us have a friendly daily conversation. Ask me about my day, one easy question at a time, and correct me gently.');
-  else if(k==='telugu')engSend('Please explain your last message in Telugu, with the English examples.');
-  else if(k==='quiz')engSend(w?`Quiz me on these words one by one (I answer each): ${w}. Give the Telugu meaning after my answer.`:'Give me a short quiz (5 questions) on today\'s topic, one question at a time.');
-  else if(k==='check'){const i=document.getElementById('engInput');i.value='Please check my sentence: ';i.focus();}
+  const w=eng.words.slice(0,10).map(x=>x.w).join('; ');
+  const t={
+    chat:'Let us have a natural conversation. Ask me interesting questions one at a time, and give me quick feedback on my English as we go.',
+    talk:'Give me a topic for a 1-minute talk. After I reply, give feedback on fluency, grammar, vocabulary and naturalness, with a better version of my best sentence.',
+    role:'Start a role-play with me. Pick a realistic professional or social situation, play the other person, and give feedback after every few turns.',
+    pron:'Be my pronunciation coach. Pick 5 words or phrases that Telugu speakers often mispronounce, give a respelling and IPA for each, and ask me to say them one by one.',
+    telugu:'Please explain your last message in Telugu, with the English examples.',
+    quiz:w?`Quiz me on these phrases one by one (I answer each): ${w}. Ask me to use each in a sentence, then improve it.`:'Give me a short quiz (5 questions) on today\'s topic, one question at a time.'
+  };
+  if(k==='check'){const i=document.getElementById('engInput');i.value='Please check my sentence: ';i.focus();return;}
+  if(t[k])engSend(t[k]);
 }
 function engEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function engFmt(s){return engEsc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');}
@@ -2733,13 +2744,13 @@ function engRenderTalk(){
   document.getElementById('engStreak').textContent=st?`🔥 ${st}-day streak`:'Say hello to start your streak';
   const box=document.getElementById('engMsgs');
   let h='';
-  if(!eng.cfg.key)h+=`<div class="en-b ai">👋 Welcome! First add your <b>free Gemini key</b> in <a href="#" onclick="engTab='setup';engRender();return false" style="color:var(--accent)">Setup</a> (2 minutes) — then we can start talking. <br>నమస్కారం! ముందు Setup లో మీ ఉచిత కీ పెట్టండి.</div>`;
-  else if(!eng.today.msgs.length)h+=`<div class="en-b ai">Good ${new Date().getHours()<12?'morning':new Date().getHours()<17?'afternoon':'evening'}! 👋 I am your English teacher.<br>Today is <b>Day ${p.n}</b>: ${engEsc(p.w.t)}. Tap <b>▶ Start today's lesson</b>, or just say hello.<br>నమస్కారం! ఈ రోజు పాఠం మొదలుపెడదామా?</div>`;
+  if(!eng.cfg.key)h+=`<div class="en-b ai">👋 Welcome! First add your <b>free Gemini key</b> in <a href="#" onclick="engTab='setup';engRender();return false" style="color:var(--accent)">Setup</a> (2 minutes) — then we can start talking.</div>`;
+  else if(!eng.today.msgs.length)h+=`<div class="en-b ai">Good ${new Date().getHours()<12?'morning':new Date().getHours()<17?'afternoon':'evening'}! 👋 I'm your speaking coach.<br>Today is <b>Day ${p.n}</b> — ${engEsc(p.w.t)} (${p.d.ic} ${p.d.n}). Tap <b>▶ Today's session</b>, or just start talking — tell me about your day in a few sentences.</div>`;
   eng.today.msgs.forEach((m,i)=>{
     if(m.role==='user')h+=`<div class="en-b me">${engFmt(m.text)}</div>`;
     else h+=`<div class="en-b ai">${engFmt(m.text)}<button class="spk" title="Listen" onclick="engSpeak(eng.today.msgs[${i}].text)"><i class="fas fa-volume-high"></i></button></div>`;
   });
-  if(engBusy)h+='<div class="en-typing">Teacher is typing…</div>';
+  if(engBusy)h+='<div class="en-typing">Coach is typing…</div>';
   if(engErr)h+=`<div class="en-b err">⚠️ ${engEsc(engErr)}</div>`;
   box.innerHTML=h;box.scrollTop=box.scrollHeight;
 }
@@ -2747,13 +2758,13 @@ function engRenderPlan(){
   const day=engDayNo(),cur=engPlanFor(day),done=Object.keys(eng.plan).filter(k=>eng.plan[k]).length;
   let h=`<div class="ft-card"><h3>📅 Your 90-day plan</h3><div class="ft-sub" style="margin-bottom:10px">Started ${eng.start} · ${day>90?'plan finished — keep practising! 🎉':'today is Day '+cur.n}</div>
     <div class="ft-bar ${done>=90?'ok':''}" style="margin-bottom:8px"><i style="width:${Math.round(done/90*100)}%"></i></div>
-    <div class="ft-sub">${done} of 90 days ticked · each day = a small task + 10 minutes of chat with your AI teacher</div>
+    <div class="ft-sub">${done} of 90 days ticked · each day = one focused task + about 20 minutes of speaking with your coach</div>
     <div class="ft-row"><button class="ft-btn ghost" onclick="engRestart()">Restart plan from today</button></div></div>`;
   ENG_WEEKS.forEach((w,wi)=>{
     const days=[];for(let d=wi*7+1;d<=Math.min(90,wi*7+7);d++)days.push(d);
     const n=days.filter(d=>eng.plan[d]).length;
     h+=`<details class="en-week" ${wi===cur.wi?'open':''}><summary>Week ${wi+1} · ${engEsc(w.t)}<small>${n}/${days.length}</small></summary><div class="en-wk-body">
-      <div class="meta"><b>Grammar:</b> ${engEsc(w.g)}<br><b>Words:</b> ${engEsc(w.v)}<br><b>Sounds:</b> ${engEsc(w.p)}<br><b>Speak:</b> ${engEsc(w.s)}</div>
+      <div class="meta"><b>Language focus:</b> ${engEsc(w.g)}<br><b>Phrases:</b> ${engEsc(w.v)}<br><b>Sounds:</b> ${engEsc(w.p)}<br><b>Speak:</b> ${engEsc(w.s)}</div>
       ${days.map(d=>{const t=ENG_DAYTYPES[(d-1)%7];return `<label class="en-day ${d===cur.n&&day<=90?'today':''} ${eng.plan[d]?'done':''}"><input type="checkbox" data-day="${d}" ${eng.plan[d]?'checked':''}><span class="d">Day ${d}</span><span class="tx">${t.ic} <b>${t.n}</b> — ${engEsc(t.f(w))}</span></label>`;}).join('')}
     </div></details>`;
   });
@@ -2762,9 +2773,9 @@ function engRenderPlan(){
 function engRenderWords(){
   const q=(document.getElementById('engQ')||{}).value||'',ql=q.toLowerCase();
   const ws=eng.words.filter(w=>!ql||w.w.toLowerCase().includes(ql)||(w.te||'').includes(q));
-  let h=`<div class="ft-card"><h3>📚 My Words <span class="ft-sub" style="font-weight:400">· ${eng.words.length} saved automatically from your chats</span></h3>
+  let h=`<div class="ft-card"><h3>📚 My Phrases &amp; Words <span class="ft-sub" style="font-weight:400">· ${eng.words.length} saved automatically from your chats</span></h3>
     <div class="ft-row" style="margin:0 0 12px"><input id="engQ" class="grow" placeholder="Search words…" value="${engEsc(q)}" oninput="engRenderWords()" style="padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--ink);font:inherit"><button class="ft-btn" onclick="engTab='talk';engRender();engQuick('quiz')">🧠 Quiz me</button></div>
-    ${ws.length?ws.slice(0,150).map(w=>`<div class="en-word"><b>${engEsc(w.w)}</b><span class="te">${engEsc(w.te)}</span>${w.ex?`<span class="ex">“${engEsc(w.ex)}” · ${w.d}</span>`:''}</div>`).join(''):'<div class="hm-empty">No words yet — chat with your teacher and new words will appear here.</div>'}</div>
+    ${ws.length?ws.slice(0,150).map(w=>`<div class="en-word"><b>${engEsc(w.w)}</b><span class="te">${engEsc(w.te)}</span>${w.ex?`<span class="ex">“${engEsc(w.ex)}” · ${w.d}</span>`:''}</div>`).join(''):'<div class="hm-empty">No words yet — chat with your coach and new words will appear here.</div>'}</div>
     <div class="ft-card"><h3>✏️ My Mistakes <span class="ft-sub" style="font-weight:400">· learn from these</span></h3>
     ${eng.mistakes.length?eng.mistakes.slice(0,60).map(m=>`<div class="en-fix"><s>${engEsc(m.wrong)}</s><br><span class="ok">${engEsc(m.right)}</span>${m.note?`<br><span class="ft-sub">${engEsc(m.note)}</span>`:''}</div>`).join(''):'<div class="hm-empty">Corrections will be collected here.</div>'}</div>`;
   const keep=document.activeElement&&document.activeElement.id==='engQ';
@@ -2775,19 +2786,22 @@ function engRenderSetup(){
   const c=eng.cfg;
   document.getElementById('engSetup').innerHTML=`<div class="ft-card"><h3>🔑 AI connection (free)</h3>
     <ol class="ft-tips"><li>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--accent)">aistudio.google.com/apikey</a> and sign in with your Google account.</li><li>Click <b>Create API key</b> (no payment details needed) and copy it.</li><li>Paste it below and press <b>Test connection</b>.</li></ol>
-    <p class="ft-sub" style="margin:10px 0">This uses Google's <b>free tier</b> with a small fast model — no separate charge. On the free tier Google may use prompts to improve its products, so don't type passwords or private details to your teacher. (Claude Pro can't be used for this — it has no key for apps.)</p>
+    <p class="ft-sub" style="margin:10px 0">This uses Google's <b>free tier</b> with a small fast model — no separate charge. On the free tier Google may use prompts to improve its products, so don't type passwords or private details to your coach. (Claude Pro can't be used for this — it has no key for apps.)</p>
     <div class="ft-grid"><div style="grid-column:1/-1"><label>Gemini API key</label><input type="password" id="engKey" value="${engEsc(c.key)}" placeholder="AIza…" autocomplete="off"></div>
     <div style="grid-column:1/-1"><label>Model</label><input id="engModel" value="${engEsc(c.model)}"></div></div>
     <div class="ft-row"><button class="ft-btn" onclick="engSaveCfg(true)">Save &amp; test connection</button><button class="ft-btn ghost" onclick="engSaveCfg(false)">Save</button></div>
     <div id="engCfgMsg" class="message" style="margin-top:12px"></div>
     <p class="ft-sub" style="margin-top:10px">${CLOUD()?'Cloud mode: the key stays on this device only and is never written to your Google Sheet.':'Your key is stored encrypted together with your diary data. Backups you export do not include it.'}</p></div>
+  <div class="ft-card"><h3>🎯 Your level &amp; coaching style</h3>
+    <div class="ft-grid"><div><label>My level</label><select onchange="eng.cfg.level=this.value;engSaveSoon()">${[['intermediate','Intermediate'],['upper-intermediate','Upper-intermediate (good, want to polish)'],['advanced','Advanced (aiming for near-native)']].map(([v,l])=>`<option value="${v}" ${c.level===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div><label>Telugu support</label><select onchange="eng.cfg.telugu=this.value;engSaveSoon()">${[['ask','Only when I ask'],['light','Short note after corrections'],['off','Never (English only)']].map(([v,l])=>`<option value="${v}" ${c.telugu===v?'selected':''}>${l}</option>`).join('')}</select></div></div></div>
   <div class="ft-card"><h3>🔊 Voice &amp; behaviour</h3>
-    <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSpeak?'checked':''} onchange="eng.cfg.autoSpeak=this.checked;engSaveSoon()"> Read the teacher's replies aloud automatically</label>
+    <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSpeak?'checked':''} onchange="eng.cfg.autoSpeak=this.checked;engSaveSoon()"> Read the coach's replies aloud automatically</label>
     <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSend?'checked':''} onchange="eng.cfg.autoSend=this.checked;engSaveSoon()"> Send automatically when I finish speaking</label>
     <label style="display:block;color:var(--ink)">Speaking speed: <b id="engRateV">${c.rate}</b> <input type="range" min="0.6" max="1.2" step="0.1" value="${c.rate}" oninput="eng.cfg.rate=+this.value;document.getElementById('engRateV').textContent=this.value;engSaveSoon()"></label>
     <p class="ft-sub" style="margin-top:10px">Voice input uses your browser's speech service (Chrome/Edge — Chrome sends the audio to Google for recognition). It listens in English (India).</p></div>
   <div class="ft-card"><h3>🧠 Daily auto-compact</h3>
-    <p class="ft-sub" style="margin-bottom:10px">Every new day, yesterday's chat is automatically summarised into a short memory note (level, repeated mistakes, new words) and the chat starts fresh — so the teacher remembers you without sending old conversations each time. Long chats are also folded in during the day.</p>
+    <p class="ft-sub" style="margin-bottom:10px">Every new day, yesterday's chat is automatically summarised into a short memory note (level, repeated mistakes, new words) and the chat starts fresh — so the coach remembers you without sending old conversations each time. Long chats are also folded in during the day.</p>
     <div class="en-fix" style="border-left-color:var(--accent)">${eng.memory?engFmt(eng.memory):'<span class="ft-sub">No memory yet — it builds after your first day.</span>'}</div>
     <div class="ft-row"><button class="ft-btn ghost" onclick="engCompactNow()">Compact today's chat now</button><button class="ft-btn danger" onclick="if(confirm('Clear today\\'s chat?')){eng.today.msgs=[];engSaveSoon();engRender();}">Clear today's chat</button></div></div>`;
 }
@@ -2802,7 +2816,7 @@ async function engSaveCfg(test){
     if(!ok.length)throw new Error('Your key works but no models were listed. Create a new key at aistudio.google.com/apikey.');
     if(!ok.includes(eng.cfg.model)){const pick=engPick(ok);if(!pick)throw new Error('No Gemini Flash model is available for this key. Models found: '+ok.slice(0,8).join(', '));eng.cfg.model=pick;}
     document.getElementById('engModel').value=eng.cfg.model;
-    const reply=await engGemini('You are a friendly English teacher.',[{role:'user',parts:[{text:'Say hello in one short sentence.'}]}],60);
+    const reply=await engGemini('You are a friendly English coach.',[{role:'user',parts:[{text:'Say hello in one short sentence.'}]}],60);
     engSaveSoon();showMessage('engCfgMsg','✅ Connected with '+eng.cfg.model+' — “'+reply.slice(0,80)+'”','success');
   }catch(e){showMessage('engCfgMsg','❌ '+(e.message||e),'error');}
 }
