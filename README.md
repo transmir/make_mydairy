@@ -5,15 +5,17 @@ Installable as an app (PWA) and works offline.
 
 This project is **completely independent** of any other diary: it has its own storage, its own keys and no shared backend.
 
-## English practice (Telugu → English)
+## Speaking Coach (presentations & team meetings)
 
-The **English Practice** tab is a speaking coach for someone who already knows English well and wants to sound more fluent and natural: an AI coach you talk or type to every day, a 90-day speaking plan, an automatic phrase list and a mistakes list.
+The **Speaking Coach** tab helps a Telugu-speaking, English-medium-educated professional become a confident speaker on stage and in meetings.
 
-* The coach gives corrections, "more natural" phrasing, new phrases/idioms and pronunciation tips (including common Telugu-English patterns). Telugu is used only when you ask (configurable).
-* It uses Google's **Gemini free tier** (small, fast model) straight from your browser with **your own key** from <https://aistudio.google.com/apikey> — no separate charge. Paste it in *English Practice → Setup*. The key is stored encrypted with your diary data and is never put in backups or in a Google Sheet.
-* Every new day the previous chat is automatically **compacted** into a short memory note, so the teacher remembers your level and mistakes without resending old chats.
-* Voice: 🎤 speech input (Chrome/Edge) and 🔊 read-aloud use your browser's speech features.
-* On Google's free tier prompts may be used to improve Google's products — don't type secrets to the teacher.
+* **Rehearsal studio:** pick a scenario (presentation, team update, elevator pitch, tough question, polite disagreement…), a target time and a topic, then speak. You get a live transcript plus **pace (words per minute), filler words, long pauses and timing**, and your rehearsals are tracked over time. One tap sends the talk to the coach for scores, top-3 fixes and a stronger opening.
+* **AI coach:** build a talk, practise Q&A with a tough audience, role-play team meetings, polish a script for speaking, pronunciation help (including common Telugu-English patterns). Telugu is used only when you ask (configurable).
+* **90-day plan:** voice and pace, removing fillers, structure (PREP, rule of three), openings and closings, stories and data, slides, meeting updates and influence, Q&A, full rehearsals and a final dress rehearsal.
+* It uses Google's **Gemini free tier** straight from your browser with **your own key** from <https://aistudio.google.com/apikey> — no separate charge. Paste it in *Speaking Coach → Setup*. The key is stored encrypted with your diary data and is never put in backups or in a Google Sheet.
+* Every new day the previous chat is automatically **compacted** into a short memory note, so the coach remembers your level, work and mistakes without resending old chats.
+* Voice uses your browser's speech features (Chrome/Edge; Chrome sends audio to Google for recognition). Browsers often hide "um/uh", so filler counts can be lower than reality.
+* On Google's free tier prompts may be used to improve Google's products — don't type secrets.
 
 ## Privacy
 

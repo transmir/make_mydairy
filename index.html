@@ -643,6 +643,12 @@ button:active:not(:disabled){transform:scale(.97);}
 .en-day.done .tx{color:var(--muted);text-decoration:line-through;}
 .en-word{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);margin-bottom:8px;color:var(--ink);}
 .en-word b{font-size:1.02em;}.en-word .te{color:var(--accent);}.en-word .ex{grid-column:1/-1;font-size:.84em;color:var(--muted);}
+.rh-time{font-size:3.2em;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:-.03em;}
+.rh-time.over{color:#ef4444;}.rh-time.rec{color:var(--accent);}
+.rh-metrics{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.rh-m{flex:1;min-width:120px;padding:10px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);}
+.rh-m b{display:block;font-size:1.35em;color:var(--ink);}.rh-m span{font-size:.74em;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.rh-m.good{border-color:#10b981;}.rh-m.warn{border-color:#f59e0b;}.rh-m.bad{border-color:#ef4444;}
 .en-fix{padding:10px 14px;border-left:4px solid #f59e0b;background:var(--surface2);border-radius:0 12px 12px 0;margin-bottom:8px;font-size:.9em;color:var(--ink);}
 .en-fix s{color:#ef4444;}.en-fix .ok{color:#10b981;font-weight:600;}
 @media(max-width:768px){.en-chat{height:calc(100dvh - 330px);}.en-b{max-width:90%;}}
@@ -758,7 +764,7 @@ button:active:not(:disabled){transform:scale(.97);}
       <li class="nav-sep">Plan</li>
       <li class="nav-tab" onclick="switchTab('flowmap',this)"> <i class="fas fa-sitemap"></i> Flow Map</li>
       <li class="nav-sep">Learn</li>
-      <li class="nav-tab" onclick="switchTab('english',this)"><i class="fas fa-language"></i> English Practice</li>
+      <li class="nav-tab" onclick="switchTab('english',this)"><i class="fas fa-microphone-lines"></i> Speaking Coach</li>
       <li class="nav-sep">Account</li>
       <li class="nav-tab" onclick="switchTab('profile',this)"> <i class="fas fa-user-cog"></i> Profile</li>
       <li class="nav-tab" onclick="switchTab('settings',this)"><i class="fas fa-cogs"></i> Customize Habits</li>
@@ -989,25 +995,43 @@ button:active:not(:disabled){transform:scale(.97);}
 
     <!-- ENGLISH PRACTICE -->
     <div id="tab-english" class="tab-content">
-      <div class="page-header"><h1>🗣️ English Practice</h1><p>Speak with your AI coach every day — fluency, accent, natural phrasing and richer vocabulary. A 90-day speaking plan keeps you on track.</p></div>
+      <div class="page-header"><h1>🎤 Speaking Coach</h1><p>Presentations, on-stage talks and team meetings. Rehearse with live pace and filler-word metrics, practise with your AI coach, and follow a 90-day plan.</p></div>
       <div class="ft-pills" id="engPills">
-        <button data-t="talk" class="on">💬 Talk</button><button data-t="plan">📅 90-Day Plan</button><button data-t="words">📚 My Phrases</button><button data-t="setup">⚙️ Setup</button>
+        <button data-t="talk" class="on">💬 Coach</button><button data-t="rehearse">🎤 Rehearse</button><button data-t="plan">📅 90-Day Plan</button><button data-t="words">📚 My Phrases</button><button data-t="setup">⚙️ Setup</button>
       </div>
       <div id="engTalk">
         <div class="en-bar"><span class="ft-tag" id="engToday"></span><span class="ft-sub" id="engStreak"></span></div>
         <div class="en-chat">
           <div class="en-msgs" id="engMsgs"></div>
           <div class="en-chips">
-            <button onclick="engLesson()">▶ Today's session</button><button onclick="engQuick('talk')">🎤 1-minute talk</button><button onclick="engQuick('chat')">💬 Free chat</button>
-            <button onclick="engQuick('role')">🎭 Role-play</button><button onclick="engQuick('pron')">👄 Pronunciation</button><button onclick="engQuick('check')">✏️ Check my sentence</button>
-            <button onclick="engQuick('quiz')">🧠 Quiz me</button><button onclick="engQuick('telugu')">తెలుగులో చెప్పు</button>
+            <button onclick="engLesson()">▶ Today's session</button><button onclick="engTab='rehearse';engRender()">🎤 Rehearse</button><button onclick="engQuick('build')">🧩 Build my talk</button>
+            <button onclick="engQuick('qa')">🙋 Q&amp;A practice</button><button onclick="engQuick('meet')">🗓️ Team meeting</button><button onclick="engQuick('polish')">✏️ Polish my script</button>
+            <button onclick="engQuick('pron')">👄 Pronunciation</button><button onclick="engQuick('quiz')">🧠 Quiz phrases</button><button onclick="engQuick('telugu')">తెలుగులో చెప్పు</button>
           </div>
           <div class="en-comp">
             <button class="en-mic" id="engMic" onclick="engMic()" title="Speak (English)" aria-label="Speak"><i class="fas fa-microphone"></i></button>
-            <textarea id="engInput" rows="1" placeholder="Say or type something in English… (aim for 3–5 sentences)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();engSendInput();}"></textarea>
+            <textarea id="engInput" rows="1" placeholder="Talk to your coach, or paste a script to polish…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();engSendInput();}"></textarea>
             <button class="en-send" onclick="engSendInput()" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
           </div>
         </div>
+      </div>
+      <div id="engRehearse" style="display:none">
+        <div class="ft-card"><h3>🎤 Rehearsal studio</h3>
+          <div class="ft-grid">
+            <div><label>Scenario</label><select id="rhScn" onchange="rhScenario()"></select></div>
+            <div><label>Target time</label><select id="rhDur" onchange="rhTarget()"></select></div>
+            <div style="grid-column:1/-1"><label>Topic / prompt</label><div style="display:flex;gap:8px"><input id="rhTopic" placeholder="What will you talk about?" style="flex:1"><button class="ft-btn ghost" onclick="rhSuggest()">Suggest</button></div></div>
+            <div style="grid-column:1/-1"><label>My notes or outline (optional — the coach checks your talk against it)</label><textarea id="rhNotes" rows="3"></textarea></div>
+          </div>
+          <div style="text-align:center;margin:18px 0 6px"><div class="rh-time" id="rhTime">00:00</div><div class="ft-sub" id="rhTarget"></div></div>
+          <div class="ft-row" style="justify-content:center"><button class="ft-btn" id="rhStart" onclick="rhStart()">● Start</button><button class="ft-btn ghost" id="rhStop" onclick="rhStop()" disabled>■ Stop</button><button class="ft-btn ghost" onclick="rhReset()">Reset</button></div>
+          <label style="display:block;margin:14px 0 4px;font-size:.8em;color:var(--muted);font-weight:600">LIVE TRANSCRIPT — fills as you speak. You can also type or paste your script here.</label>
+          <textarea id="rhText" rows="7" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;background:var(--surface2);color:var(--ink)"></textarea>
+          <div class="rh-metrics" id="rhMetrics"></div>
+          <div class="ft-row"><button class="ft-btn" onclick="rhFeedback()">Get coach feedback →</button></div>
+          <p class="ft-sub" style="margin-top:10px">Speech recognition works in Chrome/Edge (Chrome sends the audio to Google). It runs in English (India). Browsers often hide "um/uh", so filler counts can be lower than reality.</p>
+        </div>
+        <div class="ft-card" id="rhHistory"></div>
       </div>
       <div id="engPlan" style="display:none"></div>
       <div id="engWords" style="display:none"></div>
@@ -2522,37 +2546,37 @@ renderSwatches();
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 
 // ════════════════════════════════════════════════
-//  ENGLISH PRACTICE — AI speaking coach (Telugu speaker → fluent English), 90-day plan, phrases, daily auto-compaction
+//  ENGLISH PRACTICE — AI public-speaking & meeting coach, rehearsal studio, 90-day plan, phrases, daily auto-compaction
 //  AI: Google Gemini free tier, called straight from this browser with YOUR key. Key is stored with your encrypted diary data.
 // ════════════════════════════════════════════════
 const ENG_WEEKS=[
-  {t:'Your Baseline',g:'full-sentence speaking · tense control (past vs present perfect)',v:'natural connectors & fillers: well, actually, to be honest, I mean',p:'make your sound map: V/W, TH, retroflex T/D, schwa — pick your top 3 sounds',s:'Record a 2-minute self-introduction and get detailed AI feedback'},
-  {t:'Rhythm & Stress',g:'sentence stress · weak forms (content words loud, function words soft)',v:'everyday phrasal verbs: set up, figure out, carry on, run into',p:'English is stress-timed (Telugu is syllable-timed): word stress, schwa, weak "to / of / and"',s:'Describe your morning at natural speed with clear stress'},
-  {t:'Telugu-English Sounds',g:'articles (a / the / zero) with abstract and uncountable nouns',v:'collocations with make / do / take / have',p:'/v/ vs /w/ · /θ/ & /ð/ · aspirated p/t/k at word start · softer English /t d/ (not retroflex)',s:'Tongue twisters, then a 1-minute talk using minimal pairs'},
-  {t:'Fluency Without Translating',g:'stative verbs (I know, not "I am knowing") · present vs present continuous',v:'thinking-time phrases: let me think, how should I put it, what I mean is',p:'connected speech: "pick it up" → "pickitup", linking final consonants',s:'Talk 2 minutes non-stop — no silence longer than 2 seconds'},
-  {t:'Storytelling',g:'narrative tenses: past simple, past continuous, past perfect',v:'story phrases & time markers: out of the blue, by the time, eventually',p:'intonation for emotion, surprise and emphasis',s:'Tell a memorable story in 2 minutes'},
-  {t:'Opinions & Discussion',g:'agreeing / disagreeing politely · relative clauses · softening',v:'hedging: I tend to think, arguably, it seems to me',p:'rising vs falling intonation · contrastive stress',s:'Defend an opinion for 2 minutes against the AI\'s counter-arguments'},
-  {t:'Precise Vocabulary',g:'prepositions & word forms (discuss it, not "discuss about"; cope with, not "cope up")',v:'collocations and professional / academic vocabulary',p:'stress shifts: PREsent / preSENT, PHOtograph / phoTOgraphy',s:'Explain a complex topic simply in 2 minutes'},
-  {t:'Phrasal Verbs & Idioms',g:'separable phrasal verbs · idioms in context · international vs Indian English ("revert back", "prepone")',v:'20 high-frequency idioms',p:'reduced speech: gonna, wanna, kinda, gotta',s:'Use 10 idioms naturally in one conversation'},
-  {t:'Professional Speaking',g:'polite and indirect requests · first and second conditionals',v:'meeting and email language: circle back, on the same page, action items',p:'pace, pause and volume for clarity',s:'Lead a 3-minute status update as if in a meeting'},
-  {t:'Presentations',g:'signposting language · passive voice for formal speech',v:'presentation phrases: let me walk you through, to sum up',p:'thought groups: chunk your speech and pause between them',s:'Give a 5-minute talk on your field'},
-  {t:'Interviews & Small Talk',g:'present perfect for experience · third conditional for reflection',v:'STAR answers, small-talk topics and exits',p:'confident, falling intonation at the end of statements',s:'Mock interview, then 3 minutes of small talk'},
-  {t:'Native-Speed Listening',g:'reported speech · hypotheticals (If I were…)',v:'informal expressions and slang (use with care)',p:'shadowing at native speed: copy rhythm, not just words',s:'Retell a TED talk in your own words'},
-  {t:'Putting It Together',g:'your top 5 personal error patterns — fix them for good',v:'your personal phrase bank from My Phrases',p:'your 3 priority sounds',s:'10-minute free conversation, then compare with your Week 1 recording'}
+  {t:'Your Speaking Baseline',g:'know your starting point: pace, fillers, structure, confidence',v:'meeting openers: Let me start with…, The main point is…',p:'record a 2-minute talk in the Rehearse tab — note your words-per-minute and filler words',s:'A 2-minute talk about your work; set your 3 improvement goals'},
+  {t:'Voice, Pace & Pausing',g:'speak at 120–150 words per minute · pause instead of rushing · vary pitch and volume',v:'transition phrases: Moving on to…, That brings me to…',p:'breathing, projection, stress and intonation (avoid a flat voice)',s:'Read and then speak a 1-minute passage with deliberate pauses'},
+  {t:'Eliminate Filler Words',g:'replace "um / uh / you know / basically" with a silent pause · chunk your thoughts',v:'bridge phrases: Let me put it another way…, What I mean is…',p:'finish sentences cleanly — drop your pitch at the end of a statement',s:'A 2-minute talk with fewer than 3 filler words'},
+  {t:'Clear Sounds for a Big Room',g:'enunciation for the back row · stressed words carry meaning',v:'numbers, names and technical terms said clearly',p:'V/W · TH · final consonants · word stress in key terms (e.g. DAta, deVELop, reSEARCH)',s:'Say your technical terms and numbers clearly in a 1-minute explanation'},
+  {t:'Structure Any Talk',g:'PREP (Point, Reason, Example, Point) · rule of three · one key message',v:'signposting: There are three things I want to cover…, Firstly / Secondly / Finally',p:'chunk speech into thought groups and pause between them',s:'Explain one idea in 90 seconds using PREP'},
+  {t:'Openings & Closings',g:'hook the audience in 15 seconds · summarise · call to action',v:'openers and closers: Imagine…, Here is the one thing to remember…, So, to wrap up…',p:'strong, slower delivery of the first and last sentences',s:'Deliver a 30-second opening and a 30-second close'},
+  {t:'Stories, Examples & Data',g:'tell a short story to prove a point · explain charts and numbers',v:'data language: this chart shows…, a 20% increase, compared with…',p:'emphasis: stress the number, not the unit',s:'Explain a chart or result to a non-expert in 2 minutes'},
+  {t:'Slides & Delivery',g:'speak to the slide, never read it · transitions between slides',v:'slide phrases: As you can see…, Let me draw your attention to…',p:'pointing, eye contact and standing still — practise on camera',s:'Present 3 slides in 3 minutes without reading them'},
+  {t:'Team Meetings I: Updates',g:'BLUF (bottom line up front) · progress, plan, blockers',v:'status phrases: We are on track…, We hit a blocker…, I will circle back by…',p:'sound confident: lower pitch, steady pace',s:'Give a 60-second status update'},
+  {t:'Team Meetings II: Influence',g:'disagree politely · interrupt politely · ask for clarification · summarise decisions',v:'I see your point, but…, Could I add something?, To confirm, we agreed to…',p:'assertive, calm tone — not louder, slower',s:'Role-play a disagreement and reach a decision'},
+  {t:'Q&A & Tough Questions',g:'pause · restate · answer · check · bridge back to your message',v:'Great question…, I do not have the figure to hand, but…, Let me come back to that',p:'stay calm: slow down when the question is hard',s:'Answer 5 tough questions in a row'},
+  {t:'Full Presentation Rehearsals',g:'time your talk · run it end-to-end · fix the weakest 20%',v:'your personal phrase bank for openings, transitions and closings',p:'record, listen back, and fix your top 3 sounds',s:'Deliver a complete 10-minute presentation and review the metrics'},
+  {t:'Showtime',g:'nerves management · pre-talk routine · recover from mistakes gracefully',v:'recovery phrases: Let me rephrase that, Sorry, let me go back…',p:'warm up your voice before you speak',s:'Final dress rehearsal — compare with your Week 1 baseline'}
 ];
 const ENG_DAYTYPES=[
-  {ic:'📖',n:'Phrases',f:w=>`Upgrade your vocabulary: learn 8 natural phrases/collocations about "${w.v}". Use each one in a real sentence with your coach.`},
-  {ic:'👄',n:'Sound drill',f:w=>`Pronunciation: ${w.p}. Practise 10 minutes, record yourself, play it back, and ask the coach what to fix.`},
-  {ic:'🎧',n:'Shadowing',f:w=>`Listen to 10 minutes of native English (TED, podcast, interview). Shadow it — copy rhythm and intonation. Language focus: ${w.g}.`},
-  {ic:'🎤',n:'Speak',f:w=>`Timed talk: ${w.s}. Use the 🎤 mic, then ask for feedback on fluency, grammar, vocabulary and naturalness.`},
-  {ic:'🗣️',n:'Discuss',f:w=>`Discussion: debate an opinion or role-play with your coach for 15 minutes. Try to use this week's phrases and "${w.g}".`},
-  {ic:'🎭',n:'Real-life role-play',f:w=>`Role-play a real situation (interview, meeting, phone call, networking). Then review My Mistakes and fix them aloud.`},
-  {ic:'🌟',n:'Free chat + reflection',f:w=>`20 minutes of free conversation on anything. Ask the coach for your 3 strongest points and 3 things to improve this week.`}
+  {ic:'📘',n:'Skill lesson',f:w=>`Learn today's technique: ${w.g}. Ask your coach for examples and a quick exercise.`},
+  {ic:'👄',n:'Voice & sound drill',f:w=>`Voice drill (10 min): ${w.p}. Record yourself, listen back, and note one thing to fix.`},
+  {ic:'🎧',n:'Study a great speaker',f:w=>`Watch 10 minutes of a strong talk (TED, keynote, conference). Note the structure and delivery, then shadow one minute. Phrases to notice: ${w.v}.`},
+  {ic:'🎤',n:'Rehearse',f:w=>`Use the 🎤 Rehearse tab: ${w.s}. Check your pace and filler words, then get coach feedback.`},
+  {ic:'🗓️',n:'Meeting practice',f:w=>`Role-play a team-meeting scenario with the coach (update, disagreement or proposal). Use: ${w.v}.`},
+  {ic:'🙋',n:'Q&A & tough moments',f:w=>`Practise Q&A: ask the coach to play a tough audience and answer 5 questions. Focus: ${w.g}.`},
+  {ic:'🌟',n:'Full run-through + reflection',f:w=>`Deliver a 5-minute run-through of a real talk or update. Ask the coach for 3 wins and 3 fixes, and log your WPM and fillers.`}
 ];
 const ENG_DEFAULT_MODEL='gemini-2.5-flash-lite';
 let eng=null,engTab='talk',engBusy=false,engRec=null,engErr='',engSaveT=null;
 
-function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak:false,autoSend:true,rate:1,level:'upper-intermediate',telugu:'ask'},start:ftToday(),memory:'',today:{date:ftToday(),msgs:[]},words:[],mistakes:[],log:{},plan:{}};}
+function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak:false,autoSend:true,rate:1,level:'upper-intermediate',telugu:'ask',role:'',audience:''},start:ftToday(),memory:'',today:{date:ftToday(),msgs:[]},words:[],mistakes:[],log:{},plan:{},rehearsals:[]};}
 function engLoad(remote){
   eng=(remote&&remote.cfg)?remote:engDefaults();
   const d=engDefaults();Object.keys(d).forEach(k=>{if(eng[k]===undefined)eng[k]=d[k];});eng.cfg=Object.assign({},d.cfg,eng.cfg);
@@ -2574,22 +2598,23 @@ function engStreak(){let n=0;for(let i=0;i<400;i++){const d=ftShift(ftToday(),-i
 function engSystem(){
   const name=(currentUser&&currentUser.displayName)||'the learner',day=engDayNo(),p=engPlanFor(day),c=eng.cfg;
   const tel=c.telugu==='off'?'Do not use Telugu at all.':(c.telugu==='light'?'After a correction you may add ONE very short Telugu note (తెలుగు script) when it truly helps.':'Use English only. Use Telugu (తెలుగు script) ONLY if the learner writes in Telugu or asks for it, or for a really tricky explanation.');
-  return `You are "Coach", a friendly, sharp English SPEAKING coach for ${name}, an adult whose native language is Telugu. They studied in English medium and know the basics and grammar well. Level: ${c.level}. Goal: sound fluent, natural and confident when speaking — better fluency, accent clarity, richer vocabulary, and natural phrasing.
+  const ctx=[c.role&&('Their role/field: '+c.role+'.'),c.audience&&('Typical audience/situations: '+c.audience+'.')].filter(Boolean).join(' ');
+  return `You are "Coach", a sharp, practical PUBLIC-SPEAKING and MEETING-COMMUNICATION coach for ${name}, an adult whose native language is Telugu. They studied in English medium and know English well. Goal: speak clearly, confidently and persuasively on stage in presentations and in team meetings. Level: ${c.level}. ${ctx}
 STYLE
-- Speak natural, native-like English at a level slightly above theirs. Be concise (about 60-140 words) unless they ask for more. Do NOT explain basic grammar they already know.
-- Reply naturally to what they said, then keep the conversation going with ONE engaging question (opinion, story or scenario — not trivial questions).
-- Give at most 2 improvements per reply, only the most valuable ones:
-  "✏️ Better: <corrected sentence>" for real errors, and "🗣️ More natural: <how a native speaker would say it>" for correct but unnatural phrasing.
-- Teach 1-2 useful phrases, collocations or idioms per reply as "💡 phrase — meaning" (meaning in simple English).
-- Watch for common Telugu / Indian-English patterns and flag them kindly: article use (a/the/none), "discuss about", "cope up", "revert back", "prepone", "I am knowing", "only" for emphasis, missing past perfect, V/W and TH sounds, retroflex T/D, syllable-timed rhythm, and flat intonation.
-- The learner's text may come from speech recognition. If a word looks odd or wrong, it may be a pronunciation clue — say what you think they meant and how to pronounce it (simple respelling like "WAH-ter" plus IPA when useful).
-- Pace/fluency: if their message is very short or hesitant, push them to say more ("Tell me more — try 4-5 sentences"). Praise real progress briefly. Never mock.
-- ${tel}
-TODAY: Day ${p.n} of 90, week "${p.w.t}" (${p.d.n}). Language focus: ${p.w.g}. Phrases theme: ${p.w.v}. Sound focus: ${p.w.p}. Speaking goal: ${p.w.s}.
+- Be concise and concrete (about 60-150 words). Do NOT explain basic grammar. Prefer rewrites: "Try saying: …".
+- Respond to the CONTENT of what they said, then give at most 2 improvements, chosen for impact on a listener: structure (opening, key message, signposting, closing, PREP, rule of three, BLUF), clarity and concision, vocabulary and phrasing ("🗣️ More natural: …"), real errors ("✏️ Better: …"), and delivery (pace, pausing, emphasis, intonation, eye contact, gestures) when relevant.
+- Teach 1-2 reusable presenting/meeting phrases per reply as "💡 phrase — when to use it".
+- In ROLE-PLAYS (team meeting, Q&A, tough audience): play the other people realistically, stay in character, ask one thing at a time, and give brief feedback after every few turns.
+- When they paste a script or notes, rewrite it for SPEAKING: shorter sentences, signposts, one idea per sentence, natural rhythm.
+- When given rehearsal metrics (pace, fillers, pauses), interpret them honestly: 120-150 wpm is a good presenting pace; browsers often hide "um/uh" so fillers may be undercounted. Give a score out of 10 for structure, clarity, pace and delivery, the top 3 fixes, and a stronger version of the opening.
+- Watch common Telugu / Indian-English patterns and flag them kindly: V/W and TH sounds, retroflex T/D, syllable-timed rhythm and flat intonation, article use, "discuss about", "cope up", "revert back", "prepone", "I am knowing".
+- The learner's text may come from speech recognition. If a word looks odd, it may be a pronunciation clue — say what you think they meant and how to pronounce it (respelling like "WAH-ter", IPA when useful).
+- Be encouraging and honest. Never mock. ${tel}
+TODAY: Day ${p.n} of 90, week "${p.w.t}" (${p.d.n}). Focus: ${p.w.g}. Phrases: ${p.w.v}. Sounds/delivery: ${p.w.p}. Speaking goal: ${p.w.s}.
 WHAT YOU REMEMBER ABOUT THE LEARNER FROM EARLIER DAYS:
-${eng.memory||'(nothing yet — this is the beginning; get to know their interests and level)'}
+${eng.memory||'(nothing yet — this is the beginning; learn about their work and audiences)'}
 MACHINE LINES (hidden from the learner; put them at the very END of every reply, each on its own line, leave empty if none):
-[[words: phrase|meaning (Telugu only if they asked for Telugu)|short example sentence; phrase2|meaning|example]]
+[[words: phrase|when to use it (Telugu only if they asked for Telugu)|short example sentence; phrase2|meaning|example]]
 [[fix: what they said => better version | very short reason; ...]]`;
 }
 async function engListModels(){
@@ -2695,14 +2720,15 @@ function engLesson(){const p=engPlanFor(engDayNo());engSend(`Let's do today's se
 function engQuick(k){
   const w=eng.words.slice(0,10).map(x=>x.w).join('; ');
   const t={
-    chat:'Let us have a natural conversation. Ask me interesting questions one at a time, and give me quick feedback on my English as we go.',
-    talk:'Give me a topic for a 1-minute talk. After I reply, give feedback on fluency, grammar, vocabulary and naturalness, with a better version of my best sentence.',
-    role:'Start a role-play with me. Pick a realistic professional or social situation, play the other person, and give feedback after every few turns.',
-    pron:'Be my pronunciation coach. Pick 5 words or phrases that Telugu speakers often mispronounce, give a respelling and IPA for each, and ask me to say them one by one.',
+    build:'Help me build a presentation. Ask me about the topic, audience, time limit and key message, one question at a time. Then give me a clear outline: opening hook, three main points, closing, plus signposting phrases I can say.',
+    qa:'Play a tough but fair audience. Ask me 5 challenging questions about my work, one at a time. After each answer give short feedback on structure and confidence, and a stronger version of my answer.',
+    meet:'Role-play a team meeting with me. You are my colleagues and manager. Start a realistic scenario (status update, disagreement or a proposal), stay in character, and give feedback every few turns.',
+    pron:'Be my pronunciation coach for presenting. Pick 6 words or phrases that Telugu speakers often mispronounce on stage (technical or business terms), give a respelling and IPA for each, and ask me to say them one by one.',
+    chat:'Let us have a natural conversation about my work. Ask me interesting questions one at a time, and coach how I phrase and structure my answers.',
     telugu:'Please explain your last message in Telugu, with the English examples.',
-    quiz:w?`Quiz me on these phrases one by one (I answer each): ${w}. Ask me to use each in a sentence, then improve it.`:'Give me a short quiz (5 questions) on today\'s topic, one question at a time.'
+    quiz:w?`Quiz me on these phrases one by one: ${w}. Ask me to use each in a presenting or meeting sentence, then improve it.`:'Give me a short quiz (5 questions) on presenting and meeting phrases, one at a time.'
   };
-  if(k==='check'){const i=document.getElementById('engInput');i.value='Please check my sentence: ';i.focus();return;}
+  if(k==='polish'){const i=document.getElementById('engInput');i.value='Please polish this script for speaking (clear, natural, concise; keep my ideas):\n';i.focus();i.dispatchEvent(new Event('input'));return;}
   if(t[k])engSend(t[k]);
 }
 function engEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -2718,7 +2744,7 @@ function engSpeak(text){
   const vs=speechSynthesis.getVoices();const v=vs.find(x=>/en[-_]IN/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
   speechSynthesis.speak(u);
 }
-function engStop(){try{speechSynthesis.cancel();}catch(e){}if(engRec){try{engRec.stop();}catch(e){}engRec=null;}const m=document.getElementById('engMic');if(m)m.classList.remove('rec');}
+function engStop(){try{rhStop(true);}catch(e){}try{speechSynthesis.cancel();}catch(e){}if(engRec){try{engRec.stop();}catch(e){}engRec=null;}const m=document.getElementById('engMic');if(m)m.classList.remove('rec');}
 function engMic(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){alert('Voice input is not supported in this browser. Please use Chrome or Edge (or type instead).');return;}
@@ -2735,8 +2761,8 @@ function engMic(){
 function engRender(){
   if(!eng){engLoad(null);return;}
   document.querySelectorAll('#engPills button').forEach(b=>b.classList.toggle('on',b.dataset.t===engTab));
-  ['talk','plan','words','setup'].forEach(t=>{const el=document.getElementById('eng'+t[0].toUpperCase()+t.slice(1));if(el)el.style.display=t===engTab?'':'none';});
-  if(engTab==='talk')engRenderTalk();else if(engTab==='plan')engRenderPlan();else if(engTab==='words')engRenderWords();else engRenderSetup();
+  ['talk','rehearse','plan','words','setup'].forEach(t=>{const el=document.getElementById('eng'+t[0].toUpperCase()+t.slice(1));if(el)el.style.display=t===engTab?'':'none';});
+  if(engTab==='talk')engRenderTalk();else if(engTab==='rehearse')rhRender();else if(engTab==='plan')engRenderPlan();else if(engTab==='words')engRenderWords();else engRenderSetup();
 }
 function engRenderTalk(){
   const day=engDayNo(),p=engPlanFor(day),st=engStreak();
@@ -2745,7 +2771,7 @@ function engRenderTalk(){
   const box=document.getElementById('engMsgs');
   let h='';
   if(!eng.cfg.key)h+=`<div class="en-b ai">👋 Welcome! First add your <b>free Gemini key</b> in <a href="#" onclick="engTab='setup';engRender();return false" style="color:var(--accent)">Setup</a> (2 minutes) — then we can start talking.</div>`;
-  else if(!eng.today.msgs.length)h+=`<div class="en-b ai">Good ${new Date().getHours()<12?'morning':new Date().getHours()<17?'afternoon':'evening'}! 👋 I'm your speaking coach.<br>Today is <b>Day ${p.n}</b> — ${engEsc(p.w.t)} (${p.d.ic} ${p.d.n}). Tap <b>▶ Today's session</b>, or just start talking — tell me about your day in a few sentences.</div>`;
+  else if(!eng.today.msgs.length)h+=`<div class="en-b ai">Good ${new Date().getHours()<12?'morning':new Date().getHours()<17?'afternoon':'evening'}! 👋 I'm your presentation &amp; meeting coach.<br>Today is <b>Day ${p.n}</b> — ${engEsc(p.w.t)} (${p.d.ic} ${p.d.n}). Tap <b>▶ Today's session</b>, <b>🎤 Rehearse</b> to practise a talk, or tell me what you need to present or discuss soon.</div>`;
   eng.today.msgs.forEach((m,i)=>{
     if(m.role==='user')h+=`<div class="en-b me">${engFmt(m.text)}</div>`;
     else h+=`<div class="en-b ai">${engFmt(m.text)}<button class="spk" title="Listen" onclick="engSpeak(eng.today.msgs[${i}].text)"><i class="fas fa-volume-high"></i></button></div>`;
@@ -2758,7 +2784,7 @@ function engRenderPlan(){
   const day=engDayNo(),cur=engPlanFor(day),done=Object.keys(eng.plan).filter(k=>eng.plan[k]).length;
   let h=`<div class="ft-card"><h3>📅 Your 90-day plan</h3><div class="ft-sub" style="margin-bottom:10px">Started ${eng.start} · ${day>90?'plan finished — keep practising! 🎉':'today is Day '+cur.n}</div>
     <div class="ft-bar ${done>=90?'ok':''}" style="margin-bottom:8px"><i style="width:${Math.round(done/90*100)}%"></i></div>
-    <div class="ft-sub">${done} of 90 days ticked · each day = one focused task + about 20 minutes of speaking with your coach</div>
+    <div class="ft-sub">${done} of 90 days ticked · each day = one focused task + about 20 minutes of speaking practice</div>
     <div class="ft-row"><button class="ft-btn ghost" onclick="engRestart()">Restart plan from today</button></div></div>`;
   ENG_WEEKS.forEach((w,wi)=>{
     const days=[];for(let d=wi*7+1;d<=Math.min(90,wi*7+7);d++)days.push(d);
@@ -2773,7 +2799,7 @@ function engRenderPlan(){
 function engRenderWords(){
   const q=(document.getElementById('engQ')||{}).value||'',ql=q.toLowerCase();
   const ws=eng.words.filter(w=>!ql||w.w.toLowerCase().includes(ql)||(w.te||'').includes(q));
-  let h=`<div class="ft-card"><h3>📚 My Phrases &amp; Words <span class="ft-sub" style="font-weight:400">· ${eng.words.length} saved automatically from your chats</span></h3>
+  let h=`<div class="ft-card"><h3>📚 My Phrases <span class="ft-sub" style="font-weight:400">· ${eng.words.length} saved automatically from your chats</span></h3>
     <div class="ft-row" style="margin:0 0 12px"><input id="engQ" class="grow" placeholder="Search words…" value="${engEsc(q)}" oninput="engRenderWords()" style="padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--ink);font:inherit"><button class="ft-btn" onclick="engTab='talk';engRender();engQuick('quiz')">🧠 Quiz me</button></div>
     ${ws.length?ws.slice(0,150).map(w=>`<div class="en-word"><b>${engEsc(w.w)}</b><span class="te">${engEsc(w.te)}</span>${w.ex?`<span class="ex">“${engEsc(w.ex)}” · ${w.d}</span>`:''}</div>`).join(''):'<div class="hm-empty">No words yet — chat with your coach and new words will appear here.</div>'}</div>
     <div class="ft-card"><h3>✏️ My Mistakes <span class="ft-sub" style="font-weight:400">· learn from these</span></h3>
@@ -2792,8 +2818,8 @@ function engRenderSetup(){
     <div class="ft-row"><button class="ft-btn" onclick="engSaveCfg(true)">Save &amp; test connection</button><button class="ft-btn ghost" onclick="engSaveCfg(false)">Save</button></div>
     <div id="engCfgMsg" class="message" style="margin-top:12px"></div>
     <p class="ft-sub" style="margin-top:10px">${CLOUD()?'Cloud mode: the key stays on this device only and is never written to your Google Sheet.':'Your key is stored encrypted together with your diary data. Backups you export do not include it.'}</p></div>
-  <div class="ft-card"><h3>🎯 Your level &amp; coaching style</h3>
-    <div class="ft-grid"><div><label>My level</label><select onchange="eng.cfg.level=this.value;engSaveSoon()">${[['intermediate','Intermediate'],['upper-intermediate','Upper-intermediate (good, want to polish)'],['advanced','Advanced (aiming for near-native)']].map(([v,l])=>`<option value="${v}" ${c.level===v?'selected':''}>${l}</option>`).join('')}</select></div>
+  <div class="ft-card"><h3>🎯 You &amp; your coaching style</h3>
+    <div class="ft-grid"><div style="grid-column:1/-1"><label>My role / field (so examples fit your work)</label><input value="${engEsc(c.role)}" placeholder="e.g. research scientist, software engineer…" oninput="eng.cfg.role=this.value;engSaveSoon()"></div><div style="grid-column:1/-1"><label>My typical audiences &amp; situations</label><input value="${engEsc(c.audience)}" placeholder="e.g. weekly team meeting, conference talks, client demos…" oninput="eng.cfg.audience=this.value;engSaveSoon()"></div><div><label>My level</label><select onchange="eng.cfg.level=this.value;engSaveSoon()">${[['intermediate','Intermediate'],['upper-intermediate','Upper-intermediate (good, want to polish)'],['advanced','Advanced (aiming for near-native)']].map(([v,l])=>`<option value="${v}" ${c.level===v?'selected':''}>${l}</option>`).join('')}</select></div>
     <div><label>Telugu support</label><select onchange="eng.cfg.telugu=this.value;engSaveSoon()">${[['ask','Only when I ask'],['light','Short note after corrections'],['off','Never (English only)']].map(([v,l])=>`<option value="${v}" ${c.telugu===v?'selected':''}>${l}</option>`).join('')}</select></div></div></div>
   <div class="ft-card"><h3>🔊 Voice &amp; behaviour</h3>
     <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSpeak?'checked':''} onchange="eng.cfg.autoSpeak=this.checked;engSaveSoon()"> Read the coach's replies aloud automatically</label>
@@ -2821,6 +2847,106 @@ async function engSaveCfg(test){
   }catch(e){showMessage('engCfgMsg','❌ '+(e.message||e),'error');}
 }
 function engRestart(){if(confirm('Restart the 90-day plan from today? Ticks will be cleared.')){eng.start=ftToday();eng.plan={};engSaveSoon();engRender();}}
+
+
+// ── Rehearsal studio: live transcript + pace / filler metrics + coach feedback ──
+const RH_SCN={
+  present:{n:'Presentation section',secs:180,topics:['Explain your current project to a mixed audience','Present the key result of your work and why it matters','Pitch a new idea to leadership','Walk the audience through your main chart or result']},
+  update:{n:'Team status update',secs:60,topics:['Give a status update: progress, plan, blockers','Update the team on a delay and propose a fix','Report what you finished this week and what is next']},
+  pitch:{n:'Elevator pitch',secs:30,topics:['Describe your work to someone you meet in a lift','Pitch your idea in 30 seconds']},
+  intro:{n:'Introduce yourself',secs:60,topics:['Introduce yourself to a new team','Introduce yourself and your work at a conference']},
+  qa:{n:'Answer a tough question',secs:60,topics:['Why did you choose this approach over the alternatives?','What are the main limitations of your work?','How do you know your result is reliable?','Can you deliver this by the deadline?']},
+  disagree:{n:'Disagree politely',secs:60,topics:['Disagree with a colleague\'s proposal and suggest an alternative','Push back on an unrealistic deadline']},
+  custom:{n:'My own talk',secs:120,topics:['']}
+};
+const RH_FILLERS=/\b(um+|uh+|erm|er|ah|hmm+|you know|i mean|basically|actually|literally|sort of|kind of|okay so|so yeah)\b/gi;
+let rhRecog=null,rhOn=false,rhTick=null,rhT0=0,rhElapsed=0,rhFinal='',rhLastAt=0,rhPauses=0,rhLongest=0;
+function rhFmt(s){s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function rhRender(){
+  const sel=document.getElementById('rhScn');
+  if(sel&&!sel.options.length){
+    sel.innerHTML=Object.entries(RH_SCN).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');
+    document.getElementById('rhDur').innerHTML=[30,60,120,180,300,600].map(x=>`<option value="${x}">${x<60?x+' sec':x/60+' min'}</option>`).join('');
+    rhScenario();
+  }
+  rhTarget();rhHistory();
+}
+function rhScenario(){const sc=RH_SCN[document.getElementById('rhScn').value];document.getElementById('rhDur').value=String(sc.secs);rhSuggest();rhTarget();}
+function rhSuggest(){const sc=RH_SCN[document.getElementById('rhScn').value],t=sc.topics[Math.floor(Math.random()*sc.topics.length)];document.getElementById('rhTopic').value=t;}
+function rhTarget(){const d=+document.getElementById('rhDur').value;document.getElementById('rhTarget').textContent='Target: '+rhFmt(d)+(rhOn?'':' · press Start and speak');}
+function rhStart(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Speech recognition is not supported in this browser. Use Chrome or Edge — or type/paste your script in the box and press "Get coach feedback".');return;}
+  if(rhOn)return;
+  engStop();
+  rhFinal='';rhPauses=0;rhLongest=0;rhLastAt=Date.now();rhElapsed=0;document.getElementById('rhText').value='';document.getElementById('rhMetrics').innerHTML='';
+  rhOn=true;rhT0=Date.now();
+  document.getElementById('rhStart').disabled=true;document.getElementById('rhStop').disabled=false;document.getElementById('rhTime').classList.add('rec');
+  rhBegin(SR);
+  const target=+document.getElementById('rhDur').value;
+  rhTick=setInterval(()=>{
+    rhElapsed=(Date.now()-rhT0)/1000;
+    const t=document.getElementById('rhTime');t.textContent=rhFmt(rhElapsed);t.classList.toggle('over',rhElapsed>target);
+    if(typeof resetIdleTimer==='function')resetIdleTimer(); // speaking is not "activity" — keep the diary from auto-locking mid-rehearsal
+  },250);
+  rhTarget();
+}
+function rhBegin(SR){
+  const r=new SR();r.lang='en-IN';r.interimResults=true;r.continuous=true;rhRecog=r;
+  r.onresult=e=>{
+    const now=Date.now(),gap=(now-rhLastAt)/1000;
+    if(gap>2.5){rhPauses++;rhLongest=Math.max(rhLongest,gap);}
+    rhLastAt=now;
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];if(res.isFinal)rhFinal+=(rhFinal?' ':'')+res[0].transcript.trim();else interim+=res[0].transcript;}
+    const box=document.getElementById('rhText');box.value=(rhFinal+(interim?' '+interim:'')).trim();box.scrollTop=box.scrollHeight;
+  };
+  r.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){rhStop(true);alert('Microphone permission was blocked. Allow it in the browser address bar and try again.');}};
+  r.onend=()=>{if(rhOn){try{rhBegin(SR);}catch(e){}}}; // Chrome ends sessions after silence — keep listening
+  try{r.start();}catch(e){}
+}
+function rhStop(silent){
+  if(!rhOn){return;}
+  rhOn=false;clearInterval(rhTick);
+  if(rhRecog){try{rhRecog.onend=null;rhRecog.stop();}catch(e){}rhRecog=null;}
+  rhElapsed=(Date.now()-rhT0)/1000;
+  const b1=document.getElementById('rhStart'),b2=document.getElementById('rhStop');if(b1)b1.disabled=false;if(b2)b2.disabled=true;
+  const t=document.getElementById('rhTime');if(t)t.classList.remove('rec');
+  if(!silent)rhShowMetrics();
+}
+function rhReset(){rhStop(true);rhElapsed=0;rhFinal='';document.getElementById('rhTime').textContent='00:00';document.getElementById('rhTime').classList.remove('over');document.getElementById('rhText').value='';document.getElementById('rhMetrics').innerHTML='';rhTarget();}
+function rhCompute(){
+  const text=document.getElementById('rhText').value.trim(),words=(text.match(/[A-Za-z0-9'’]+/g)||[]).length;
+  const secs=rhElapsed>3?rhElapsed:0,wpm=secs?Math.round(words/(secs/60)):0;
+  const fillers=(text.match(RH_FILLERS)||[]).length,repeats=(text.toLowerCase().match(/\b([a-z']+) \1\b/g)||[]).length;
+  return {text,words,secs:Math.round(secs),wpm,fillers,fpm:secs?Math.round(fillers/(secs/60)*10)/10:0,repeats,pauses:rhPauses,longest:Math.round(rhLongest*10)/10};
+}
+function rhShowMetrics(){
+  const m=rhCompute();if(!m.words){document.getElementById('rhMetrics').innerHTML='<div class="ft-sub">No speech captured.</div>';return;}
+  const cls=(v,g,w)=>v>=g[0]&&v<=g[1]?'good':(v>=w[0]&&v<=w[1]?'warn':'bad');
+  const target=+document.getElementById('rhDur').value,tcls=m.secs?(Math.abs(m.secs-target)<=target*0.15?'good':Math.abs(m.secs-target)<=target*0.35?'warn':'bad'):'';
+  document.getElementById('rhMetrics').innerHTML=[
+    ['Time',rhFmt(m.secs)+' / '+rhFmt(target),tcls],
+    ['Pace',m.wpm?m.wpm+' wpm':'–',m.wpm?cls(m.wpm,[120,160],[100,180]):''],
+    ['Filler words',m.fillers+(m.secs?' ('+m.fpm+'/min)':''),m.fillers===0?'good':(m.secs&&m.fpm<=3?'warn':'bad')],
+    ['Long pauses (>2.5s)',String(m.pauses),m.pauses<=2?'good':(m.pauses<=5?'warn':'bad')],
+    ['Words',String(m.words),'']
+  ].map(([l,v,c])=>`<div class="rh-m ${c}"><b>${v}</b><span>${l}</span></div>`).join('');
+}
+function rhHistory(){
+  const h=eng.rehearsals||[];
+  document.getElementById('rhHistory').innerHTML='<h3>📈 Your rehearsals</h3>'+(h.length?`<div style="overflow-x:auto"><table class="ft-table"><tr><th>Date</th><th>Scenario</th><th>Time</th><th>Pace</th><th>Fillers/min</th><th>Pauses</th></tr>${h.slice(0,12).map(r=>`<tr><td>${r.d.slice(5)}</td><td>${engEsc(r.sc)}</td><td>${rhFmt(r.secs)}</td><td class="${r.wpm>=120&&r.wpm<=160?'ft-good':''}">${r.wpm||'–'}</td><td>${r.fpm}</td><td>${r.pauses}</td></tr>`).join('')}</table></div>`:'<div class="hm-empty">Your rehearsal metrics will appear here so you can watch your pace and fillers improve.</div>');
+}
+function rhFeedback(){
+  rhStop(true);const m=rhCompute();
+  if(!m.words){alert('Speak first (press Start), or type/paste your script in the box.');return;}
+  const sc=RH_SCN[document.getElementById('rhScn').value].n,target=+document.getElementById('rhDur').value,topic=document.getElementById('rhTopic').value.trim(),notes=document.getElementById('rhNotes').value.trim();
+  eng.rehearsals=eng.rehearsals||[];
+  eng.rehearsals.unshift({d:ftToday(),sc,secs:m.secs,wpm:m.wpm,fpm:m.fpm,pauses:m.pauses});eng.rehearsals=eng.rehearsals.slice(0,60);
+  const metrics=m.secs?`Time ${rhFmt(m.secs)} (target ${rhFmt(target)}), pace ${m.wpm} wpm, ${m.fillers} filler words (${m.fpm}/min), ${m.repeats} repeated words, ${m.pauses} pauses longer than 2.5 s (longest ${m.longest} s).`:'No timing available (the text was typed or pasted).';
+  engTab='talk';engRender();
+  engSend(`REHEARSAL FEEDBACK. Scenario: ${sc}.${topic?' Topic: '+topic+'.':''}\nMetrics: ${metrics}${notes?'\nMy notes/outline:\n'+notes:''}\n\nMy talk (speech-recognition transcript):\n"""${m.text.slice(0,4000)}"""\n\nPlease coach me: score structure, clarity, pace and delivery out of 10; list my top 3 fixes; note anything in the transcript that hints at a pronunciation problem; and give a stronger version of my opening.`);
+}
 
 (function engInit(){
   const pills=document.getElementById('engPills');if(!pills)return;
