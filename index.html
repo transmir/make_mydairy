@@ -2587,7 +2587,20 @@ MACHINE LINES (hidden from the learner; put them at the very END of every reply,
 [[words: word|తెలుగు అర్థం|short example; word2|తెలుగు అర్థం|short example]]
 [[fix: wrong sentence => corrected sentence | short Telugu note; ...]]`;
 }
-async function engGemini(system,contents,maxTokens){
+async function engListModels(){
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':eng.cfg.key}});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+  return (j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
+}
+function engPick(names){ // cheapest small model: stable flash-lite > preview flash-lite > stable flash > preview flash; newest version first
+  const bad=/image|tts|live|audio|embedding|robotics|computer|vision|learnlm|gemma|imagen|veo|native|thinking/i;
+  const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0;};
+  const c=names.filter(n=>/^gemini/.test(n)&&/flash/.test(n)&&!bad.test(n)).map(n=>({n,t:(/flash-lite/.test(n)?0:2)+(/preview|exp/.test(n)?1:0),v:ver(n)}));
+  c.sort((a,b)=>a.t-b.t||b.v-a.v||a.n.localeCompare(b.n));
+  return c[0]?c[0].n:'';
+}
+async function engGemini(system,contents,maxTokens,retried){
   const url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(eng.cfg.model||ENG_DEFAULT_MODEL)+':generateContent';
   let r;
   try{r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':eng.cfg.key},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.7,maxOutputTokens:maxTokens||900}})});}
@@ -2596,7 +2609,10 @@ async function engGemini(system,contents,maxTokens){
   if(!r.ok){
     const m=(j.error&&j.error.message)||('HTTP '+r.status);
     if(r.status===429)throw new Error('Free limit reached for now — wait a minute, or try again tomorrow. / ఉచిత పరిమితి అయిపోయింది, కాసేపు ఆగండి.');
-    if(r.status===404)throw new Error('This model is not available. Open Setup → "Test connection" to pick a working one.');
+    if(r.status===404&&!retried){ // model was retired/renamed: find a working one automatically and retry once
+      try{const m=engPick(await engListModels());if(m&&m!==eng.cfg.model){eng.cfg.model=m;engSaveSoon();return engGemini(system,contents,maxTokens,true);}}catch(e){}
+    }
+    if(r.status===404)throw new Error('The model "'+eng.cfg.model+'" is not available for your key. Open Setup → "Save & test connection" to see what is available.');
     if(r.status===400&&/API key/i.test(m)||r.status===403)throw new Error('The API key was rejected. Check it in Setup. ('+m+')');
     throw new Error(m);
   }
@@ -2782,12 +2798,9 @@ async function engSaveCfg(test){
   if(!eng.cfg.key){showMessage('engCfgMsg','Paste your API key first','error');return;}
   showMessage('engCfgMsg','⏳ Testing…','info');
   try{
-    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':eng.cfg.key}});
-    const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
-    const ok=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
-    const clean=n=>!/preview|exp|image|tts|live|audio|thinking|embedding/i.test(n);
-    const pick=ok.filter(n=>/flash-lite/.test(n)&&clean(n)).sort().reverse()[0]||ok.filter(n=>/flash/.test(n)&&clean(n)).sort().reverse()[0];
-    if(!ok.includes(eng.cfg.model)&&pick)eng.cfg.model=pick;
+    const ok=await engListModels();
+    if(!ok.length)throw new Error('Your key works but no models were listed. Create a new key at aistudio.google.com/apikey.');
+    if(!ok.includes(eng.cfg.model)){const pick=engPick(ok);if(!pick)throw new Error('No Gemini Flash model is available for this key. Models found: '+ok.slice(0,8).join(', '));eng.cfg.model=pick;}
     document.getElementById('engModel').value=eng.cfg.model;
     const reply=await engGemini('You are a friendly English teacher.',[{role:'user',parts:[{text:'Say hello in one short sentence.'}]}],60);
     engSaveSoon();showMessage('engCfgMsg','✅ Connected with '+eng.cfg.model+' — “'+reply.slice(0,80)+'”','success');
