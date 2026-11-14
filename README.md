@@ -17,6 +17,14 @@ The **Speaking Coach** tab helps a Telugu-speaking, English-medium-educated prof
 * Voice uses your browser's speech features (Chrome/Edge; Chrome sends audio to Google for recognition). Browsers often hide "um/uh", so filler counts can be lower than reality.
 * On Google's free tier prompts may be used to improve Google's products — don't type secrets.
 
+## Research Desk
+
+The **Research Desk** tab embeds two literature-survey desks: **Gaussian Splatting** (a built-in snapshot of about 3,000 papers, venues, classics, a learning path and a 90-day Blender plan) and **Audio Classification** (arXiv search, venues, DCASE, a learning path). Pick a desk from the menu at the top of the tab.
+
+* Ticks, the reading list and comparisons are stored only in this browser, under this diary's own namespace.
+* **Live arXiv papers** need your own Apps Script (see below): the desks ask it for the newest papers. Without it, the Splat desk shows its built-in snapshot, and the Audio desk's paper list stays empty (its other tabs still work).
+* No other diary's backend is used.
+
 ## Privacy
 
 * **Default: private mode.** All data stays in *this browser on this device*, encrypted with AES-256-GCM using a key derived from your password (PBKDF2, 250k iterations). Nothing is sent anywhere.
