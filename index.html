@@ -661,6 +661,10 @@ button:active:not(:disabled){transform:scale(.97);}
 #rsPick{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit}
 .rs-open{display:inline-flex;gap:6px;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600;font-size:.9em}
 .rs-open:hover{border-color:var(--accent);color:var(--accent)}
+.rs-live{border:1px solid var(--line);background:var(--glass);border-radius:14px;padding:12px 16px;margin-bottom:12px;color:var(--ink);font-size:.9em;}
+.rs-live .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.rs-live ol{margin:10px 0 10px 20px;line-height:1.8;color:var(--ink2);}
+.rs-live input{flex:1;min-width:220px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--ink);font:inherit;}
 .rs-frame{display:block;width:100%;height:calc(100vh - 170px);min-height:520px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
 @media (max-width:768px){.rs-frame{height:calc(100dvh - 230px);border-radius:12px}}
 
@@ -1064,6 +1068,7 @@ button:active:not(:disabled){transform:scale(.97);}
           <a id="rsOpen" class="rs-open" href="splat-survey-desk/index.html" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> Full screen</a>
         </div>
       </div>
+      <div class="rs-live" id="rsLive"></div>
       <iframe id="rsFrame" class="rs-frame" title="Research desk"></iframe>
     </div>
 
@@ -2997,7 +3002,41 @@ const RS_DESKS={
 function rsCurrent(){const k=lsGet('researchDesk');return RS_DESKS[k]?k:'splat';}
 function rsSet(k){lsSet('researchDesk',k);rsLoad();}
 function rsTheme(){const f=document.getElementById('rsFrame');try{const th=document.documentElement.getAttribute('data-theme');const d=f.contentDocument&&f.contentDocument.documentElement;if(d){if(th)d.setAttribute('data-theme',th);else d.removeAttribute('data-theme');}}catch(e){}}
+function rsLiveRender(open){
+  const el=document.getElementById('rsLive');if(!el)return;
+  const own=lsGet('arxivUrl'),u=own||SCRIPT_URL;
+  if(open){
+    el.innerHTML=`<b>Set up live arXiv (2 minutes, free)</b>
+    <ol><li>Open <a href="https://script.google.com" target="_blank" rel="noopener" style="color:var(--accent)">script.google.com</a> → <b>New project</b>.</li>
+    <li><button class="ft-btn ghost" onclick="rsCopyHelper(this)">Copy helper script</button> and paste it over the code there, then Save.</li>
+    <li><b>Deploy → New deployment → Web app</b> · Execute as <b>Me</b> · Who has access <b>Anyone</b> → Deploy → authorize → copy the web app URL.</li>
+    <li>Paste the URL here:</li></ol>
+    <div class="row"><input id="rsUrl" placeholder="https://script.google.com/macros/s/…/exec" value="${engEsc(own||'')}"><button class="ft-btn" onclick="rsLiveSave()">Save</button>${own?'<button class="ft-btn ghost" onclick="rsLiveRemove()">Remove</button>':''}<button class="ft-btn ghost" onclick="rsLiveRender(false)">Cancel</button></div>
+    <div class="ft-sub" id="rsMsg" style="margin-top:8px">The helper only reads public arXiv data — it never sees your diary.</div>`;
+  }else if(u){
+    el.innerHTML=`<div class="row">✅ <span>Live arXiv search is connected${own?' (your helper)':' (your Apps Script)'}.</span><button class="ft-btn ghost" onclick="rsLiveRender(true)">Change</button></div>`;
+  }else{
+    el.innerHTML=`<div class="row">⚠️ <span>Live arXiv search needs a free helper in <b>your own</b> Google account (arXiv blocks direct requests from web pages).</span><button class="ft-btn" onclick="rsLiveRender(true)">Set up live arXiv</button></div>`;
+  }
+}
+async function rsCopyHelper(b){
+  try{const t=await (await fetch('backend/arxiv-proxy.gs')).text();await navigator.clipboard.writeText(t);b.textContent='✅ Copied';}
+  catch(e){b.textContent='Could not copy — open backend/arxiv-proxy.gs in the repo';}
+}
+async function rsLiveSave(){
+  const u=document.getElementById('rsUrl').value.trim(),m=document.getElementById('rsMsg');
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)){m.textContent='❌ Paste the full web app URL (it ends in /exec)';return;}
+  m.textContent='⏳ Testing…';
+  try{
+    const r=await fetch(u+'?data='+encodeURIComponent(JSON.stringify({action:'arxiv',query:'cat:cs.SD',max:1})));
+    const j=await r.json();if(!j.success)throw new Error(j.message||'The helper answered with an error');
+  }catch(e){m.textContent='❌ Could not use that URL: '+(e.message||e)+'. Check "Who has access: Anyone" and that you deployed a new version.';return;}
+  lsSet('arxivUrl',u);rsLiveRender(false);rsReloadDesk();
+}
+function rsLiveRemove(){try{localStorage.removeItem(NS+'arxivUrl');}catch(e){}rsLiveRender(false);rsReloadDesk();}
+function rsReloadDesk(){const f=document.getElementById('rsFrame');f.dataset.desk='';rsLoad();}
 function rsLoad(){
+  rsLiveRender(false);
   const k=rsCurrent(),d=RS_DESKS[k],f=document.getElementById('rsFrame');
   document.getElementById('rsPick').value=k;
   document.getElementById('rsTitle').textContent=d.title;
