@@ -1,5 +1,6 @@
 // ============================================================
-// Personal Diary – Google Apps Script Backend
+// My Private Diary – OPTIONAL Google Apps Script backend (cloud sync)
+// Create YOUR OWN Google Sheet and paste this in — never reuse someone else's deployment URL.
 // Open via: Google Sheet → Extensions → Apps Script
 // Requests come in as GET with ?data=<JSON> parameter
 // ============================================================
@@ -61,7 +62,7 @@ function getConfigSheet() {
     sheet = ss.insertSheet('Config');
     sheet.getRange(1, 1, 2, 4).setValues([
       ['password', 'user1Name', 'user2Name', 'version'],
-      ['',         'Person 1',  'Person 2',  '1'      ]
+      ['',         'Me',        '',          '1'      ]
     ]);
   }
   return sheet;
@@ -72,8 +73,8 @@ function getConfig() {
   const row    = sheet.getRange(2, 1, 1, 4).getValues()[0];
   return respond(true, 'ok', {
     hasPassword: String(row[0]).trim() !== '',
-    user1Name:   row[1] || 'Person 1',
-    user2Name:   row[2] || 'Person 2'
+    user1Name:   row[1] || 'Me',
+    user2Name:   row[2] || ''
   });
 }
 

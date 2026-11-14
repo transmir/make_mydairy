@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personal Diary & Habit Tracker</title>
+<title>My Private Diary</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<script>try{var _t=localStorage.getItem("diaryTheme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=_t;}catch(e){}try{document.documentElement.dataset.accent=localStorage.getItem("diaryAccent")||"indigo";}catch(e){document.documentElement.dataset.accent="indigo";}</script>
+<script>try{var _t=localStorage.getItem("mydairy:theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=_t;}catch(e){}try{document.documentElement.dataset.accent=localStorage.getItem("mydairy:accent")||"indigo";}catch(e){document.documentElement.dataset.accent="indigo";}</script>
 <meta name="theme-color" content="#6366f1"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Diary">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -607,6 +607,9 @@ button:active:not(:disabled){transform:scale(.97);}
   .cmdk-bg{padding-top:6vh;}
 }
 @media(min-width:769px){.sheet-bg{display:none!important;}}
+
+.switch-user-btn{display:none!important;}
+.sb-private{font-size:.72em;color:#8f96c8;text-align:center;padding:2px 0 6px;}
 </style>
 </head>
 <body>
@@ -660,10 +663,14 @@ button:active:not(:disabled){transform:scale(.97);}
   <div id="setPasswordScreen" class="gate-screen">
     <i class="fas fa-lock big"></i>
     <h1>Set Your Password</h1>
-    <p>Set once — works on every device automatically</p>
+    <p id="setPwText">Your diary is encrypted on this device with this password.</p>
+    <div class="form-group">
+      <label>Your name</label>
+      <input type="text" id="newName" placeholder="What should I call you?">
+    </div>
     <div class="form-group">
       <label>Create Password</label>
-      <input type="password" id="newPassword" placeholder="At least 4 characters" onkeydown="if(event.key==='Enter')setPasswordAction()">
+      <input type="password" id="newPassword" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')setPasswordAction()">
     </div>
     <div class="form-group">
       <label>Confirm Password</label>
@@ -675,8 +682,8 @@ button:active:not(:disabled){transform:scale(.97);}
 
   <div id="enterPasswordScreen" class="gate-screen">
     <i class="fas fa-book big"></i>
-    <h1>My Diary</h1>
-    <p>Enter your password to unlock</p>
+    <h1>My Private Diary</h1>
+    <p id="unlockText">Enter your password to unlock</p>
     <div class="form-group">
       <label>Password</label>
       <input type="password" id="enterPassword" placeholder="Your password" onkeydown="if(event.key==='Enter')checkPasswordAction()">
@@ -685,26 +692,16 @@ button:active:not(:disabled){transform:scale(.97);}
     <div id="pwMessage" class="message"></div>
   </div>
 
-  <div id="selectUserScreen" class="gate-screen">
-    <i class="fas fa-users big"></i>
-    <h1>Who's Using the Diary?</h1>
-    <p>Select your profile to continue</p>
-    <div class="user-select-buttons">
-      <div class="user-btn" onclick="selectUser('user1')"><i class="fas fa-user-circle"></i><span id="user1Name">Person 1</span></div>
-      <div class="user-btn" onclick="selectUser('user2')"><i class="fas fa-user-circle"></i><span id="user2Name">Person 2</span></div>
-    </div>
-  </div>
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="dashboard">
   <nav class="sidebar">
-    <div class="logo"><i class="fas fa-book"></i><span>My Diary</span></div>
+    <div class="logo"><i class="fas fa-book"></i><span>Private Diary</span></div>
     <div class="user-info">
       <div class="avatar" id="sidebarAvatar">U</div>
       <div>
         <strong id="sidebarName">User</strong>
-        <button class="switch-user-btn" onclick="switchUser()">↩ Switch user</button>
       </div>
     </div>
     <button class="sb-search" onclick="openCmdk()" aria-label="Search"><i class="fas fa-magnifying-glass"></i><span>Search…</span><kbd>Ctrl K</kbd></button>
@@ -959,6 +956,24 @@ button:active:not(:disabled){transform:scale(.97);}
         <div id="profileMessage" class="message"></div>
       </div>
       <div class="profile-section">
+        <h3>🔒 Storage &amp; Backup</h3>
+        <p id="storageInfo" style="color:var(--muted);font-size:.92em;line-height:1.6;margin-bottom:14px;"></p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+          <button class="btn btn-primary btn-sm" onclick="exportBackup()"><i class="fas fa-download"></i> Export backup</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import backup</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importBackup(event)">
+        </div>
+        <p style="color:var(--muted);font-size:.8em;">Backups are plain JSON (not encrypted) — keep them somewhere safe.</p>
+        <h3 style="margin-top:22px;">☁️ Cloud sync (optional)</h3>
+        <p style="color:var(--muted);font-size:.88em;line-height:1.6;margin-bottom:10px;">Use <b>your own</b> Google Sheet + Apps Script (see README). Nothing is shared with any other diary. Tip: export a backup first, connect, unlock with the cloud password, then import it to move your data.</p>
+        <div class="input-row"><label>Apps Script web app URL</label><input type="url" id="cloudUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="saveCloudUrl()"><i class="fas fa-link"></i> Connect</button>
+          <button class="btn btn-secondary btn-sm" id="cloudOff" onclick="disconnectCloud()"><i class="fas fa-link-slash"></i> Disconnect</button>
+        </div>
+        <div id="storageMessage" class="message"></div>
+      </div>
+      <div class="profile-section">
         <h3>🎨 Appearance</h3>
         <p style="color:var(--muted);font-size:.9em;margin-bottom:14px;">Pick an accent color. Dark mode is in the sidebar (or More menu on phones).</p>
         <div class="swatches" id="profileSwatches"></div>
@@ -1018,7 +1033,58 @@ button:active:not(:disabled){transform:scale(.97);}
 // ════════════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_vYwTxspKnmQYkt9wy7fvIoWDMVbQiR_0CHzxtaT-pQuZS8lW8Tx-z1g4MsAr8XFOOg/exec';
+// Private by default: all data stays on THIS device, encrypted (AES-256-GCM) with a key derived from your password.
+// Optional: connect your OWN Google Apps Script in Profile → Storage to sync through your own Google Sheet.
+const NS='mydairy:';
+function lsGet(k){try{return localStorage.getItem(NS+k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(NS+k,v);return true;}catch(e){return false;}}
+let SCRIPT_URL=lsGet('scriptUrl')||'';
+const CLOUD=()=>!!SCRIPT_URL;
+const DATA_TYPES=['habits','notes','todos','settings','papers','notesfiles','flowmap','fitness'];
+let _key=null;
+const _enc=new TextEncoder(),_dec=new TextDecoder();
+const b64=u8=>{let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s);};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function deriveKey(pw,salt){const base=await crypto.subtle.importKey('raw',_enc.encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+async function seal(key,text){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,_enc.encode(text))),out=new Uint8Array(12+ct.length);out.set(iv);out.set(ct,12);return b64(out);}
+async function unseal(key,s){const u=unb64(s);return _dec.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},key,u.subarray(12)));}
+function lcfg(){try{return JSON.parse(lsGet('cfg'));}catch(e){return null;}}
+function unlockedClear(){try{sessionStorage.removeItem(NS+'unlocked');}catch(e){}_key=null;}
+async function localApi(p){
+  const cfg=lcfg();
+  switch(p.action){
+    case 'getConfig': return {success:true,message:'ok',hasPassword:!!cfg,user1Name:(cfg&&cfg.name)||'Me',user2Name:''};
+    case 'setPassword':{
+      const pw=String(p.password||'');if(pw.length<6)return {success:false,message:'Use at least 6 characters'};
+      const old={};
+      if(cfg&&_key){for(const t of DATA_TYPES){const raw=lsGet('d:'+t);if(raw){try{old[t]=await unseal(_key,raw);}catch(e){}}}}
+      const salt=crypto.getRandomValues(new Uint8Array(16)),key=await deriveKey(pw,salt);
+      const ncfg={salt:b64(salt),check:await seal(key,'ok'),name:(cfg&&cfg.name)||'Me'};
+      if(!lsSet('cfg',JSON.stringify(ncfg)))return {success:false,message:'Browser storage unavailable'};
+      for(const t of Object.keys(old))lsSet('d:'+t,await seal(key,old[t]));
+      _key=key;return {success:true,message:'Password saved'};}
+    case 'verifyPassword':{
+      if(!cfg)return {success:false,message:'No password set yet'};
+      try{const key=await deriveKey(String(p.password||''),unb64(cfg.salt));if(await unseal(key,cfg.check)==='ok'){_key=key;return {success:true,message:'ok'};}}catch(e){}
+      return {success:false,message:'Incorrect password'};}
+    case 'updateUserName':{
+      const name=String(p.name||'').trim();if(!cfg)return {success:false,message:'Set a password first'};if(!name)return {success:false,message:'Name cannot be empty'};
+      cfg.name=name;lsSet('cfg',JSON.stringify(cfg));return {success:true,message:'Name updated'};}
+    case 'save':{
+      if(!_key)return {success:false,message:'Locked'};
+      if(!lsSet('d:'+p.type,await seal(_key,JSON.stringify(p.data))))return {success:false,message:'Browser storage is full — remove large files or export a backup'};
+      return {success:true,message:'Saved'};}
+    case 'load':{
+      if(!_key)return {success:false,message:'Locked'};
+      const out={};
+      for(const t of DATA_TYPES){const raw=lsGet('d:'+t);let v=null;if(raw){try{v=JSON.parse(await unseal(_key,raw));}catch(e){}}
+        out[t]=v!==null?v:(t==='papers'?[]:(t==='settings'||t==='flowmap'||t==='fitness')?null:{});}
+      return {success:true,message:'Loaded',data:out};}
+    case 'saveVideoToDrive':case 'saveAudioToDrive':
+      return {success:false,message:'Drive upload needs your own Google connection (Profile → Storage). Use "Download locally" instead.'};
+  }
+  return {success:false,message:'Unknown action'};
+}
 
 // ════════════════════════════════════════════════
 //  STATE
@@ -1065,7 +1131,7 @@ function autoLock(){
   document.getElementById('idleWarning').classList.remove('active');
   clearTimeout(idleTimer); clearTimeout(warnTimer); clearInterval(countdownTimer);
   stopCamera(); stopAudioHard();
-  currentUser=null; sessionStorage.removeItem('unlocked');
+  currentUser=null; unlockedClear();
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('gateContainer').style.display='block';
   document.getElementById('enterPassword').value='';
@@ -1103,11 +1169,13 @@ function setSyncStatus(s,m){ const el=document.getElementById('syncStatus'); el.
 function showMessage(id,text,type){ const el=document.getElementById(id); if(!el)return; el.textContent=text; el.className='message '+type; if(type!=='info')setTimeout(()=>{el.className='message';},4500); }
 function showGate(id){ document.querySelectorAll('.gate-screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 async function apiPost(payload){
+  if(!CLOUD())return localApi(payload);
   // POST body (text/plain, no CORS preflight) — for big uploads that don't fit in a URL
   const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
   return r.json();
 }
 async function api(payload){
+  if(!CLOUD())return localApi(payload);
   // Apps Script reliably reads GET query params via e.parameter
   // Sending raw JSON POST without Content-Type often fails silently
   const url = SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
@@ -1124,15 +1192,13 @@ async function boot(){
     const r=await api({action:'getConfig'});
     if(r.success){
       appConfig=r;
-      document.getElementById('user1Name').textContent=r.user1Name||'Person 1';
-      document.getElementById('user2Name').textContent=r.user2Name||'Person 2';
       if(!r.hasPassword) showGate('setPasswordScreen');
-      else if(sessionStorage.getItem('unlocked')==='true') showGate('selectUserScreen');
+      else if(CLOUD()&&sessionStorage.getItem(NS+'unlocked')==='true') selectUser('user1');
       else showGate('enterPasswordScreen');
     } else showGate('enterPasswordScreen');
   } catch(e){
     showGate('enterPasswordScreen');
-    showMessage('pwMessage','⚠️ Cannot reach server. Check your internet and SCRIPT_URL.','error');
+    showMessage('pwMessage','⚠️ Cannot reach server. Check your internet connection and the Apps Script URL in Profile → Storage.','error');
   }
   showLoading(false);
   document.getElementById('gateContainer').style.display='block';
@@ -1143,16 +1209,19 @@ async function boot(){
 // ════════════════════════════════════════════════
 async function setPasswordAction(){
   const pw=document.getElementById('newPassword').value.trim(), pw2=document.getElementById('confirmPassword').value.trim();
-  if(pw.length<4){showMessage('setPwMessage','At least 4 characters','error');return;}
+  const minPw=CLOUD()?4:6;
+  if(pw.length<minPw){showMessage('setPwMessage','At least '+minPw+' characters','error');return;}
   if(pw!==pw2){showMessage('setPwMessage','Passwords do not match','error');return;}
   showLoading(true);
   try{
     const r=await api({action:'setPassword',password:pw});
     if(r.success){
-      sessionStorage.setItem('unlocked','true');
+      sessionStorage.setItem(NS+'unlocked','true');
+      const nm=document.getElementById('newName').value.trim();
+      if(nm)await api({action:'updateUserName',userId:'user1',name:nm});
       const cfg=await api({action:'getConfig'});
-      if(cfg.success){appConfig=cfg;document.getElementById('user1Name').textContent=cfg.user1Name;document.getElementById('user2Name').textContent=cfg.user2Name;}
-      showGate('selectUserScreen');
+      if(cfg.success)appConfig=cfg;
+      selectUser('user1');
     } else showMessage('setPwMessage',r.message,'error');
   }catch(e){showMessage('setPwMessage','Connection error','error');}
   showLoading(false);
@@ -1165,11 +1234,11 @@ async function checkPasswordAction(){
   try{
     const r=await api({action:'verifyPassword',password:entered});
     if(r.success){
-      sessionStorage.setItem('unlocked','true');
+      sessionStorage.setItem(NS+'unlocked','true');
       const cfg=await api({action:'getConfig'});
-      if(cfg.success){appConfig=cfg;document.getElementById('user1Name').textContent=cfg.user1Name;document.getElementById('user2Name').textContent=cfg.user2Name;}
+      if(cfg.success)appConfig=cfg;
       document.getElementById('enterPassword').value='';
-      showGate('selectUserScreen');
+      selectUser('user1');
     } else {showMessage('pwMessage','❌ '+r.message,'error'); document.getElementById('enterPassword').value='';}
   }catch(e){showMessage('pwMessage','Connection error','error');}
   showLoading(false); btn.disabled=false;
@@ -1223,8 +1292,7 @@ async function selectUser(userId){
   updateIdleDisplay();
 }
 
-function switchUser(){ if(confirm('Switch user?')){stopCamera();stopAudioHard();clearTimeout(idleTimer);clearTimeout(warnTimer);clearInterval(countdownTimer);document.getElementById('idleWarning').classList.remove('active');currentUser=null;document.getElementById('dashboard').classList.remove('active');document.getElementById('gateContainer').style.display='block';showGate('selectUserScreen');} }
-function lockDiary(){ if(confirm('Lock the diary?')){stopCamera();stopAudioHard();clearTimeout(idleTimer);clearTimeout(warnTimer);clearInterval(countdownTimer);document.getElementById('idleWarning').classList.remove('active');currentUser=null;sessionStorage.removeItem('unlocked');document.getElementById('dashboard').classList.remove('active');document.getElementById('gateContainer').style.display='block';document.getElementById('enterPassword').value='';showGate('enterPasswordScreen');} }
+function lockDiary(){ if(confirm('Lock the diary?')){stopCamera();stopAudioHard();clearTimeout(idleTimer);clearTimeout(warnTimer);clearInterval(countdownTimer);document.getElementById('idleWarning').classList.remove('active');currentUser=null;unlockedClear();document.getElementById('dashboard').classList.remove('active');document.getElementById('gateContainer').style.display='block';document.getElementById('enterPassword').value='';showGate('enterPasswordScreen');} }
 
 // ════════════════════════════════════════════════
 //  PROFILE
@@ -1242,12 +1310,13 @@ async function updateProfileName(){
 }
 async function changePassword(){
   const pw=document.getElementById('newAppPassword').value.trim(), pw2=document.getElementById('confirmAppPassword').value.trim();
-  if(pw.length<4){showMessage('passwordMessage','At least 4 characters','error');return;}
+  const minPw=CLOUD()?4:6;
+  if(pw.length<minPw){showMessage('passwordMessage','At least '+minPw+' characters','error');return;}
   if(pw!==pw2){showMessage('passwordMessage','Passwords do not match','error');return;}
   showLoading(true);
   try{
     const r=await api({action:'setPassword',password:pw});
-    if(r.success){document.getElementById('newAppPassword').value='';document.getElementById('confirmAppPassword').value='';showMessage('passwordMessage','✅ Password changed for all devices!','success');}
+    if(r.success){document.getElementById('newAppPassword').value='';document.getElementById('confirmAppPassword').value='';showMessage('passwordMessage',CLOUD()?'✅ Password changed for all devices!':'✅ Password changed — your data was re-encrypted','success');}
     else showMessage('passwordMessage',r.message,'error');
   }catch(e){showMessage('passwordMessage','Connection error','error');}
   showLoading(false);
@@ -1762,17 +1831,17 @@ function ftWeekInfo(){
   const m=Math.min(3,Math.ceil(wk/4));
   return wk>12?`You started ${fit.plan.start} — 12 weeks done! Keep Month 3 or add harder variations.`:`Started ${fit.plan.start} → week ${wk} of 12, so Month ${m} is the one to follow.`;
 }
-function ftKey(){return 'fitness_'+(currentUser?currentUser.id:'x');}
+function ftKey(){return 'mydairy:fitness_'+(currentUser?currentUser.id:'x');}
 function ftLoad(remote){
   let d=remote;
-  if(!d||!d.plan){try{d=JSON.parse(localStorage.getItem(ftKey()));}catch(e){d=null;}}
+  if(CLOUD()&&(!d||!d.plan)){try{d=JSON.parse(localStorage.getItem(ftKey()));}catch(e){d=null;}}
   fit=(d&&d.plan)?d:ftDefaults();
   if(fit.plan.style==='cali'&&!fit.plan.phase){fit.plan.phase=1;fit.plan.workout=ftPreset('cali',1);fit.plan.start=fit.plan.start||ftToday();}
   ftDate=ftToday();
   if(document.getElementById('tab-fitness')&&document.getElementById('tab-fitness').classList.contains('active'))ftRender();
 }
 function ftSaveSoon(){
-  try{localStorage.setItem(ftKey(),JSON.stringify(fit));}catch(e){}
+  if(CLOUD()){try{localStorage.setItem(ftKey(),JSON.stringify(fit));}catch(e){}}
   clearTimeout(ftTimer);ftTimer=setTimeout(()=>{if(currentUser)syncToSheets('fitness',fit);},1200);
 }
 function ftLog(date,create){
@@ -1996,7 +2065,7 @@ const FM_W=FM_MOBILE?150:180, FM_H=56, FM_GX=FM_MOBILE?46:70, FM_GY=FM_MOBILE?14
 window._flowmap={nodes:[],links:[],seq:1};
 let fmSel=null, fmView={x:40,y:40,k:1}, fmDrag=null, fmLinkMode=false, fmTimer=null, fmReady=false;
 
-function fmKey(){return 'flowmap_'+(currentUser?currentUser.id:'x');}
+function fmKey(){return 'mydairy:flowmap_'+(currentUser?currentUser.id:'x');}
 function fmById(id){return window._flowmap.nodes.find(n=>n.id===id);}
 function fmKids(id){return window._flowmap.nodes.filter(n=>n.parent===id);}
 function fmEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -2004,7 +2073,7 @@ function fmHidden(n){let p=n.parent;while(p){const pn=fmById(p);if(!pn)return fa
 
 function fmLoad(remote){
   let data=remote;
-  if(!data||!data.nodes){try{data=JSON.parse(localStorage.getItem(fmKey()));}catch(e){data=null;}}
+  if(CLOUD()&&(!data||!data.nodes)){try{data=JSON.parse(localStorage.getItem(fmKey()));}catch(e){data=null;}}
   window._flowmap=(data&&data.nodes)?data:{nodes:[],links:[],seq:1};
   window._flowmap.links=window._flowmap.links||[];
   if(!window._flowmap.nodes.length){
@@ -2015,12 +2084,12 @@ function fmLoad(remote){
   fmReady=true; fmSel=null; fmRender();
 }
 function fmSaveSoon(){
-  try{localStorage.setItem(fmKey(),JSON.stringify(window._flowmap));}catch(e){}
+  if(CLOUD()){try{localStorage.setItem(fmKey(),JSON.stringify(window._flowmap));}catch(e){}}
   clearTimeout(fmTimer); fmTimer=setTimeout(fmSaveNow,1200);
 }
 async function fmSaveNow(){
   clearTimeout(fmTimer);
-  try{localStorage.setItem(fmKey(),JSON.stringify(window._flowmap));}catch(e){}
+  if(CLOUD()){try{localStorage.setItem(fmKey(),JSON.stringify(window._flowmap));}catch(e){}}
   if(currentUser) await syncToSheets('flowmap',window._flowmap);
 }
 function fmNew(parent){
@@ -2212,7 +2281,7 @@ function fmExport(){
 // ════════════════════════════════════════════════
 const ACCENTS=[['indigo','#6366f1','#8b5cf6'],['teal','#0d9488','#06b6d4'],['rose','#e11d48','#ec4899'],['amber','#d97706','#f97316'],['emerald','#059669','#22c55e']];
 function setAccent(a){
-  document.documentElement.dataset.accent=a;try{localStorage.setItem('diaryAccent',a);}catch(e){}
+  document.documentElement.dataset.accent=a;try{localStorage.setItem('mydairy:accent',a);}catch(e){}
   renderSwatches();
 }
 function cycleAccent(){const i=ACCENTS.findIndex(x=>x[0]===document.documentElement.dataset.accent);setAccent(ACCENTS[(i+1)%ACCENTS.length][0]);}
@@ -2382,9 +2451,46 @@ document.addEventListener('keydown',e=>{
 renderSwatches();
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 
+// ── Storage & backup ──
+function storageInit(){
+  const info=document.getElementById('storageInfo');if(!info)return;
+  info.innerHTML=CLOUD()?'☁️ <b>Cloud mode</b> — synced to your own Google Sheet via the Apps Script URL below.':'🔒 <b>Private mode</b> — everything is encrypted and stored only in this browser on this device. If you clear site data or forget the password, it cannot be recovered, so export a backup now and then.';
+  document.getElementById('cloudUrl').value=SCRIPT_URL;document.getElementById('cloudOff').style.display=CLOUD()?'':'none';
+  const t=document.getElementById('setPwText');if(t&&CLOUD())t.textContent='Set once — works on every device that uses your Apps Script.';
+}
+async function exportBackup(){
+  const r=await api({action:'load',userId:'user1'});
+  if(!r.success){showMessage('storageMessage','❌ '+r.message,'error');return;}
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'mydairy',v:1,exported:new Date().toISOString(),data:r.data},null,2)],{type:'application/json'}));
+  a.download='my-diary-backup-'+ftToday()+'.json';a.click();
+  showMessage('storageMessage','✅ Backup downloaded','success');
+}
+async function importBackup(ev){
+  const f=ev.target.files[0];ev.target.value='';if(!f)return;
+  let d;try{d=JSON.parse(await f.text());}catch(e){showMessage('storageMessage','❌ Not a valid backup file','error');return;}
+  if(!d||d.app!=='mydairy'||!d.data){showMessage('storageMessage','❌ This is not a diary backup','error');return;}
+  if(!confirm('Replace ALL current diary data with this backup?'))return;
+  showLoading(true);let ok=true;
+  for(const t of DATA_TYPES){if(d.data[t]!==undefined&&d.data[t]!==null){const r=await api({action:'save',userId:'user1',type:t,data:d.data[t]});if(!r.success){ok=false;showMessage('storageMessage','❌ '+r.message,'error');break;}}}
+  showLoading(false);
+  if(ok){alert('Backup restored. The app will reload.');location.reload();}
+}
+function saveCloudUrl(){
+  const u=document.getElementById('cloudUrl').value.trim();
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)){showMessage('storageMessage','❌ Paste the full Apps Script web app URL (ends in /exec)','error');return;}
+  if(!confirm('Switch to cloud mode? Local and cloud data are separate. Export a backup first if you want to move your data. You will be locked and asked for the cloud password.'))return;
+  lsSet('scriptUrl',u);unlockedClear();location.reload();
+}
+function disconnectCloud(){
+  if(!confirm('Disconnect cloud sync and go back to private on-device mode?'))return;
+  try{localStorage.removeItem(NS+'scriptUrl');}catch(e){}unlockedClear();location.reload();
+}
+storageInit();
+
 // ── Theme ──
 function updateThemeBtn(){const d=document.documentElement.dataset.theme==='dark',b=document.getElementById('themeBtn');if(b)b.innerHTML=d?'<i class="fas fa-sun"></i> Light mode':'<i class="fas fa-moon"></i> Dark mode';}
-function toggleTheme(){const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('diaryTheme',t);}catch(e){}updateThemeBtn();}
+function toggleTheme(){const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('mydairy:theme',t);}catch(e){}updateThemeBtn();}
 updateThemeBtn();
 
 boot();

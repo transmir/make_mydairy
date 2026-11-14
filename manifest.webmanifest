@@ -1,7 +1,7 @@
 {
-  "name": "My Diary",
+  "name": "My Private Diary",
   "short_name": "Diary",
-  "description": "Personal diary, habits, workouts and ideas",
+  "description": "A private, encrypted personal diary: habits, workouts, ideas",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
