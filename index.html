@@ -1090,11 +1090,12 @@ button:active:not(:disabled){transform:scale(.97);}
           <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importBackup(event)">
         </div>
         <p style="color:var(--muted);font-size:.8em;">Backups are plain JSON (not encrypted) — keep them somewhere safe.</p>
-        <h3 style="margin-top:22px;">☁️ Cloud sync (optional)</h3>
-        <p style="color:var(--muted);font-size:.88em;line-height:1.6;margin-bottom:10px;">Use <b>your own</b> Google Sheet + Apps Script (see README). Nothing is shared with any other diary. Tip: export a backup first, connect, unlock with the cloud password, then import it to move your data.</p>
+        <h3 style="margin-top:22px;">☁️ Sync across devices (optional, end-to-end encrypted)</h3>
+        <p style="color:var(--muted);font-size:.88em;line-height:1.6;margin-bottom:10px;">Use <b>your own</b> Google Sheet + Apps Script (see README). Your data is encrypted here before upload, so Google only stores scrambled text; keep the web app URL private. Open the diary on another device, paste the same URL, and unlock with the same password. Saves go to the cloud automatically; press <b>Sync now</b> on a device to pull changes made elsewhere.</p>
         <div class="input-row"><label>Apps Script web app URL</label><input type="url" id="cloudUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btn-primary btn-sm" onclick="saveCloudUrl()"><i class="fas fa-link"></i> Connect</button>
+          <button class="btn btn-secondary btn-sm" id="cloudNow" onclick="syncNow()"><i class="fas fa-rotate"></i> Sync now</button>
           <button class="btn btn-secondary btn-sm" id="cloudOff" onclick="disconnectCloud()"><i class="fas fa-link-slash"></i> Disconnect</button>
         </div>
         <div id="storageMessage" class="message"></div>
@@ -1165,7 +1166,6 @@ const NS='mydairy:';
 function lsGet(k){try{return localStorage.getItem(NS+k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(NS+k,v);return true;}catch(e){return false;}}
 let SCRIPT_URL=lsGet('scriptUrl')||'';
-const CLOUD=()=>!!SCRIPT_URL;
 const DATA_TYPES=['habits','notes','todos','settings','papers','notesfiles','flowmap','fitness','english'];
 let _key=null;
 const _enc=new TextEncoder(),_dec=new TextDecoder();
@@ -1176,38 +1176,92 @@ async function seal(key,text){const iv=crypto.getRandomValues(new Uint8Array(12)
 async function unseal(key,s){const u=unb64(s);return _dec.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},key,u.subarray(12)));}
 function lcfg(){try{return JSON.parse(lsGet('cfg'));}catch(e){return null;}}
 function unlockedClear(){try{sessionStorage.removeItem(NS+'unlocked');}catch(e){}_key=null;try{engStop();}catch(e){}eng=null;}
+// ── Optional cloud mirror: your own Google Sheet only ever receives ENCRYPTED text (the password never leaves this device) ──
+const SYNC=()=>!!SCRIPT_URL;
+async function cloudCall(payload,post){
+  const r=post?await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}):await fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload)));
+  const j=await r.json();if(!j.success)throw new Error(j.message||'Cloud error');return j;
+}
+function pendGet(){try{return JSON.parse(lsGet('pending')||'[]');}catch(e){return [];}}
+function pendSet(a){lsSet('pending',JSON.stringify([...new Set(a)]));}
+async function flushPending(){ // push anything that could not be uploaded earlier (e.g. while offline)
+  let ok=true;
+  for(const t of pendGet()){const raw=lsGet('d:'+t);if(!raw){pendSet(pendGet().filter(x=>x!==t));continue;}
+    try{await cloudCall({action:'blobPut',type:t,data:raw},true);pendSet(pendGet().filter(x=>x!==t));}catch(e){ok=false;}}
+  return ok;
+}
 async function localApi(p){
   const cfg=lcfg();
   switch(p.action){
-    case 'getConfig': return {success:true,message:'ok',hasPassword:!!cfg,user1Name:(cfg&&cfg.name)||'Me',user2Name:''};
+    case 'getConfig':{
+      let c=cfg,offline=false;
+      if(SYNC()){
+        try{
+          const j=await cloudCall({action:'e2eConfig'});
+          if(j.cfg){
+            const rc=JSON.parse(j.cfg);
+            if(!c||c.check!==rc.check||c.salt!==rc.salt){ // this device has no diary, or a different one: the cloud diary wins; keep the old local copy aside
+              if(c){lsSet('old:cfg',JSON.stringify(c));for(const t of DATA_TYPES){const v=lsGet('d:'+t);if(v){lsSet('old:d:'+t,v);try{localStorage.removeItem(NS+'d:'+t);}catch(e){}}}}
+              lsSet('cfg',j.cfg);c=rc;
+            } else if(rc.name!==c.name){c=rc;lsSet('cfg',j.cfg);}
+          }else if(c){ // cloud is empty but this device already has a diary: upload it (still encrypted)
+            await cloudCall({action:'e2eSetConfig',cfg:JSON.stringify(c),mode:'create'},true);
+            for(const t of DATA_TYPES){const v=lsGet('d:'+t);if(v)await cloudCall({action:'blobPut',type:t,data:v},true);}
+          }
+        }catch(e){offline=true;}
+      }
+      if(SYNC()&&offline&&!c)return {success:false,message:'Cannot reach your cloud sync right now. Check your internet connection and the Apps Script URL in Profile → Storage.'};
+      return {success:true,message:'ok',hasPassword:!!c,user1Name:(c&&c.name)||'Me',user2Name:'',offline};}
     case 'setPassword':{
       const pw=String(p.password||'');if(pw.length<6)return {success:false,message:'Use at least 6 characters'};
       const old={};
       if(cfg&&_key){for(const t of DATA_TYPES){const raw=lsGet('d:'+t);if(raw){try{old[t]=await unseal(_key,raw);}catch(e){}}}}
       const salt=crypto.getRandomValues(new Uint8Array(16)),key=await deriveKey(pw,salt);
       const ncfg={salt:b64(salt),check:await seal(key,'ok'),name:(cfg&&cfg.name)||'Me'};
+      if(SYNC()){
+        try{await cloudCall({action:'e2eSetConfig',cfg:JSON.stringify(ncfg),mode:cfg?'replace':'create',prev:cfg?cfg.check:''},true);}
+        catch(e){return {success:false,message:e.message==='exists'?'A diary already exists in your cloud. Reload this page and unlock it with its password.':(e.message==='outdated'?'Another device changed the password. Reload and unlock with the new one.':'Could not reach your cloud sync: '+e.message)};}
+      }
       if(!lsSet('cfg',JSON.stringify(ncfg)))return {success:false,message:'Browser storage unavailable'};
-      for(const t of Object.keys(old))lsSet('d:'+t,await seal(key,old[t]));
-      _key=key;return {success:true,message:'Password saved'};}
+      const pend=pendGet();
+      for(const t of Object.keys(old)){const sl=await seal(key,old[t]);lsSet('d:'+t,sl);if(SYNC())pend.push(t);}
+      if(SYNC())pendSet(pend);
+      _key=key;if(SYNC())await flushPending();
+      return {success:true,message:'Password saved'};}
     case 'verifyPassword':{
       if(!cfg)return {success:false,message:'No password set yet'};
       try{const key=await deriveKey(String(p.password||''),unb64(cfg.salt));if(await unseal(key,cfg.check)==='ok'){_key=key;return {success:true,message:'ok'};}}catch(e){}
       return {success:false,message:'Incorrect password'};}
     case 'updateUserName':{
       const name=String(p.name||'').trim();if(!cfg)return {success:false,message:'Set a password first'};if(!name)return {success:false,message:'Name cannot be empty'};
-      cfg.name=name;lsSet('cfg',JSON.stringify(cfg));return {success:true,message:'Name updated'};}
+      cfg.name=name;lsSet('cfg',JSON.stringify(cfg));
+      if(SYNC()){try{await cloudCall({action:'e2eSetConfig',cfg:JSON.stringify(cfg),mode:'replace',prev:cfg.check},true);}catch(e){}}
+      return {success:true,message:'Name updated'};}
     case 'save':{
       if(!_key)return {success:false,message:'Locked'};
-      if(!lsSet('d:'+p.type,await seal(_key,JSON.stringify(p.data))))return {success:false,message:'Browser storage is full — remove large files or export a backup'};
+      const sealed=await seal(_key,JSON.stringify(p.data));
+      if(!lsSet('d:'+p.type,sealed))return {success:false,message:'Browser storage is full — remove large files or export a backup'};
+      if(SYNC()){
+        try{await flushPending();await cloudCall({action:'blobPut',type:p.type,data:sealed},true);}
+        catch(e){pendSet(pendGet().concat(p.type));return {success:true,pending:true,message:'Saved on this device — cloud sync pending'};}
+      }
       return {success:true,message:'Saved'};}
     case 'load':{
       if(!_key)return {success:false,message:'Locked'};
-      const out={};
-      for(const t of DATA_TYPES){const raw=lsGet('d:'+t);let v=null;if(raw){try{v=JSON.parse(await unseal(_key,raw));}catch(e){}}
-        out[t]=v!==null?v:(t==='papers'?[]:(t==='settings'||t==='flowmap'||t==='fitness'||t==='english')?null:{});}
-      return {success:true,message:'Loaded',data:out};}
-    case 'saveVideoToDrive':case 'saveAudioToDrive':
-      return {success:false,message:'Drive upload needs your own Google connection (Profile → Storage). Use "Download locally" instead.'};
+      let remote=null;
+      if(SYNC()){await flushPending();try{remote=(await cloudCall({action:'blobGetAll'})).blobs||{};}catch(e){remote=null;}}
+      const pend=pendGet(),out={};
+      for(const t of DATA_TYPES){
+        let raw;
+        if(remote&&remote[t]&&!pend.includes(t)){raw=remote[t];if(lsGet('d:'+t)!==raw)lsSet('d:'+t,raw);}
+        else raw=lsGet('d:'+t)||(remote&&remote[t])||'';
+        let v=null;if(raw){try{v=JSON.parse(await unseal(_key,raw));}catch(e){}}
+        out[t]=v!==null?v:(t==='papers'?[]:(t==='settings'||t==='flowmap'||t==='fitness'||t==='english')?null:{});
+      }
+      return {success:true,message:'Loaded',data:out,offline:SYNC()&&remote===null};}
+    case 'saveVideoToDrive':case 'saveAudioToDrive':{
+      if(!SYNC())return {success:false,message:'Drive upload needs your own Google connection (Profile → Storage). Use "Download locally" instead.'};
+      try{return await cloudCall(Object.assign({},p,{e2e:true}),true);}catch(e){return {success:false,message:e.message};}}
   }
   return {success:false,message:'Unknown action'};
 }
@@ -1294,20 +1348,7 @@ function showLoading(on){ document.getElementById('loadingOverlay').classList.to
 function setSyncStatus(s,m){ const el=document.getElementById('syncStatus'); el.className='sync-status '+s; el.textContent=m; }
 function showMessage(id,text,type){ const el=document.getElementById(id); if(!el)return; el.textContent=text; el.className='message '+type; if(type!=='info')setTimeout(()=>{el.className='message';},4500); }
 function showGate(id){ document.querySelectorAll('.gate-screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-async function apiPost(payload){
-  if(!CLOUD())return localApi(payload);
-  // POST body (text/plain, no CORS preflight) — for big uploads that don't fit in a URL
-  const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
-  return r.json();
-}
-async function api(payload){
-  if(!CLOUD())return localApi(payload);
-  // Apps Script reliably reads GET query params via e.parameter
-  // Sending raw JSON POST without Content-Type often fails silently
-  const url = SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
-  const r = await fetch(url);
-  return r.json();
-}
+const apiPost=localApi, api=localApi; // all data access goes through the encrypted engine above
 
 // ════════════════════════════════════════════════
 //  BOOT
@@ -1319,12 +1360,11 @@ async function boot(){
     if(r.success){
       appConfig=r;
       if(!r.hasPassword) showGate('setPasswordScreen');
-      else if(CLOUD()&&sessionStorage.getItem(NS+'unlocked')==='true') selectUser('user1');
       else showGate('enterPasswordScreen');
-    } else showGate('enterPasswordScreen');
+    } else {showGate('enterPasswordScreen');showMessage('pwMessage','⚠️ '+(r.message||'Cannot load your diary'),'error');}
   } catch(e){
     showGate('enterPasswordScreen');
-    showMessage('pwMessage','⚠️ Cannot reach server. Check your internet connection and the Apps Script URL in Profile → Storage.','error');
+    showMessage('pwMessage','⚠️ '+(e.message||e),'error');
   }
   showLoading(false);
   document.getElementById('gateContainer').style.display='block';
@@ -1335,8 +1375,7 @@ async function boot(){
 // ════════════════════════════════════════════════
 async function setPasswordAction(){
   const pw=document.getElementById('newPassword').value.trim(), pw2=document.getElementById('confirmPassword').value.trim();
-  const minPw=CLOUD()?4:6;
-  if(pw.length<minPw){showMessage('setPwMessage','At least '+minPw+' characters','error');return;}
+  if(pw.length<6){showMessage('setPwMessage','At least 6 characters','error');return;}
   if(pw!==pw2){showMessage('setPwMessage','Passwords do not match','error');return;}
   showLoading(true);
   try{
@@ -1373,22 +1412,7 @@ async function checkPasswordAction(){
 // ════════════════════════════════════════════════
 //  USER SELECTION
 // ════════════════════════════════════════════════
-async function selectUser(userId){
-  const name=appConfig?(appConfig[userId+'Name']||userId):userId;
-  currentUser={id:userId,displayName:name};
-  document.getElementById('gateContainer').style.display='none';
-  document.getElementById('dashboard').classList.add('active');
-  document.getElementById('sidebarName').textContent=name;
-  document.getElementById('sidebarAvatar').textContent=name.charAt(0).toUpperCase();
-  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('profileDisplayName').value=name;
-
-  setSyncStatus('syncing','⏳ Loading...');
-  showLoading(true);
-  try{
-    const r=await api({action:'load',userId});
-    if(r.success){
-      const d=r.data;
+function applyLoaded(d){
       if(d.settings){
         applyHabitSettings(d.settings);
         // restore idle timeout
@@ -1405,7 +1429,24 @@ async function selectUser(userId){
       fmLoad(d.flowmap); ftLoad(d.fitness); engLoad(d.english); homeRender();
       if(d.notesfiles) window._notesFiles=d.notesfiles||{};
       renderNotesFiles(); renderPapers(); renderVideoEntries(); renderAudioEntries();
-      setSyncStatus('synced','✅ Synced');
+}
+async function selectUser(userId){
+  const name=appConfig?(appConfig[userId+'Name']||userId):userId;
+  currentUser={id:userId,displayName:name};
+  document.getElementById('gateContainer').style.display='none';
+  document.getElementById('dashboard').classList.add('active');
+  document.getElementById('sidebarName').textContent=name;
+  document.getElementById('sidebarAvatar').textContent=name.charAt(0).toUpperCase();
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('profileDisplayName').value=name;
+
+  setSyncStatus('syncing','⏳ Loading...');
+  showLoading(true);
+  try{
+    const r=await api({action:'load',userId});
+    if(r.success){
+      applyLoaded(r.data);
+      setSyncStatus('synced',r.offline?'⚠️ Offline copy':'✅ Synced');
     } else {loadHabitUI(); setSyncStatus('error','⚠️ Load failed'); homeRender();}
   }catch(e){loadHabitUI(); setSyncStatus('error','⚠️ Offline'); homeRender();}
   showLoading(false);
@@ -1436,13 +1477,12 @@ async function updateProfileName(){
 }
 async function changePassword(){
   const pw=document.getElementById('newAppPassword').value.trim(), pw2=document.getElementById('confirmAppPassword').value.trim();
-  const minPw=CLOUD()?4:6;
-  if(pw.length<minPw){showMessage('passwordMessage','At least '+minPw+' characters','error');return;}
+  if(pw.length<6){showMessage('passwordMessage','At least 6 characters','error');return;}
   if(pw!==pw2){showMessage('passwordMessage','Passwords do not match','error');return;}
   showLoading(true);
   try{
     const r=await api({action:'setPassword',password:pw});
-    if(r.success){document.getElementById('newAppPassword').value='';document.getElementById('confirmAppPassword').value='';showMessage('passwordMessage',CLOUD()?'✅ Password changed for all devices!':'✅ Password changed — your data was re-encrypted','success');}
+    if(r.success){document.getElementById('newAppPassword').value='';document.getElementById('confirmAppPassword').value='';showMessage('passwordMessage',SYNC()?'✅ Password changed — your data was re-encrypted. Use the new password on your other devices.':'✅ Password changed — your data was re-encrypted','success');}
     else showMessage('passwordMessage',r.message,'error');
   }catch(e){showMessage('passwordMessage','Connection error','error');}
   showLoading(false);
@@ -1455,7 +1495,7 @@ async function syncToSheets(type,data){
   setSyncStatus('syncing','⏳ Saving...');
   try{
     const r=await api({action:'save',userId:currentUser.id,type,data});
-    setSyncStatus(r.success?'synced':'error',r.success?'✅ Saved':'⚠️ Failed');
+    setSyncStatus(r.success?'synced':'error',r.success?(r.pending?'⏳ Saved offline':'✅ Saved'):'⚠️ Failed');
     return r.success;
   }catch(e){setSyncStatus('error','⚠️ Error');return false;}
 }
@@ -1962,14 +2002,12 @@ function ftWeekInfo(){
 function ftKey(){return 'mydairy:fitness_'+(currentUser?currentUser.id:'x');}
 function ftLoad(remote){
   let d=remote;
-  if(CLOUD()&&(!d||!d.plan)){try{d=JSON.parse(localStorage.getItem(ftKey()));}catch(e){d=null;}}
   fit=(d&&d.plan)?d:ftDefaults();
   if(fit.plan.style==='cali'&&!fit.plan.phase){fit.plan.phase=1;fit.plan.workout=ftPreset('cali',1);fit.plan.start=fit.plan.start||ftToday();}
   ftDate=ftToday();
   if(document.getElementById('tab-fitness')&&document.getElementById('tab-fitness').classList.contains('active'))ftRender();
 }
 function ftSaveSoon(){
-  if(CLOUD()){try{localStorage.setItem(ftKey(),JSON.stringify(fit));}catch(e){}}
   clearTimeout(ftTimer);ftTimer=setTimeout(()=>{if(currentUser)syncToSheets('fitness',fit);},1200);
 }
 function ftLog(date,create){
@@ -2201,7 +2239,6 @@ function fmHidden(n){let p=n.parent;while(p){const pn=fmById(p);if(!pn)return fa
 
 function fmLoad(remote){
   let data=remote;
-  if(CLOUD()&&(!data||!data.nodes)){try{data=JSON.parse(localStorage.getItem(fmKey()));}catch(e){data=null;}}
   window._flowmap=(data&&data.nodes)?data:{nodes:[],links:[],seq:1};
   window._flowmap.links=window._flowmap.links||[];
   if(!window._flowmap.nodes.length){
@@ -2212,12 +2249,10 @@ function fmLoad(remote){
   fmReady=true; fmSel=null; fmRender();
 }
 function fmSaveSoon(){
-  if(CLOUD()){try{localStorage.setItem(fmKey(),JSON.stringify(window._flowmap));}catch(e){}}
   clearTimeout(fmTimer); fmTimer=setTimeout(fmSaveNow,1200);
 }
 async function fmSaveNow(){
   clearTimeout(fmTimer);
-  if(CLOUD()){try{localStorage.setItem(fmKey(),JSON.stringify(window._flowmap));}catch(e){}}
   if(currentUser) await syncToSheets('flowmap',window._flowmap);
 }
 function fmNew(parent){
@@ -2615,14 +2650,12 @@ function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak
 function engLoad(remote){
   eng=(remote&&remote.cfg)?remote:engDefaults();
   const d=engDefaults();Object.keys(d).forEach(k=>{if(eng[k]===undefined)eng[k]=d[k];});eng.cfg=Object.assign({},d.cfg,eng.cfg);
-  if(CLOUD())eng.cfg.key=lsGet('geminiKey')||'';
   engRollover().then(()=>{if(document.getElementById('tab-english').classList.contains('active'))engRender();});
 }
 function engSaveSoon(){clearTimeout(engSaveT);engSaveT=setTimeout(engSaveNow,1000);}
 function engSaveNow(){
   clearTimeout(engSaveT);if(!eng||!currentUser)return;
   const copy=JSON.parse(JSON.stringify(eng));
-  if(CLOUD()){lsSet('geminiKey',eng.cfg.key||'');delete copy.cfg.key;} // never put the key in the Google Sheet
   return syncToSheets('english',copy);
 }
 function engDayNo(){return Math.floor((new Date(ftToday()+'T00:00:00')-new Date(eng.start+'T00:00:00'))/86400000)+1;}
@@ -2852,7 +2885,7 @@ function engRenderSetup(){
     <div style="grid-column:1/-1"><label>Model</label><input id="engModel" value="${engEsc(c.model)}"></div></div>
     <div class="ft-row"><button class="ft-btn" onclick="engSaveCfg(true)">Save &amp; test connection</button><button class="ft-btn ghost" onclick="engSaveCfg(false)">Save</button></div>
     <div id="engCfgMsg" class="message" style="margin-top:12px"></div>
-    <p class="ft-sub" style="margin-top:10px">${CLOUD()?'Cloud mode: the key stays on this device only and is never written to your Google Sheet.':'Your key is stored encrypted together with your diary data. Backups you export do not include it.'}</p></div>
+    <p class="ft-sub" style="margin-top:10px">Your key is stored encrypted together with your diary data (and synced, still encrypted, if you use cloud sync). Backups you export do not include it.</p></div>
   <div class="ft-card"><h3>🎯 You &amp; your coaching style</h3>
     <div class="ft-grid"><div style="grid-column:1/-1"><label>My role / field (so examples fit your work)</label><input value="${engEsc(c.role)}" placeholder="e.g. research scientist, software engineer…" oninput="eng.cfg.role=this.value;engSaveSoon()"></div><div style="grid-column:1/-1"><label>My typical audiences &amp; situations</label><input value="${engEsc(c.audience)}" placeholder="e.g. weekly team meeting, conference talks, client demos…" oninput="eng.cfg.audience=this.value;engSaveSoon()"></div><div><label>My level</label><select onchange="eng.cfg.level=this.value;engSaveSoon()">${[['intermediate','Intermediate'],['upper-intermediate','Upper-intermediate (good, want to polish)'],['advanced','Advanced (aiming for near-native)']].map(([v,l])=>`<option value="${v}" ${c.level===v?'selected':''}>${l}</option>`).join('')}</select></div>
     <div><label>Telugu support</label><select onchange="eng.cfg.telugu=this.value;engSaveSoon()">${[['ask','Only when I ask'],['light','Short note after corrections'],['off','Never (English only)']].map(([v,l])=>`<option value="${v}" ${c.telugu===v?'selected':''}>${l}</option>`).join('')}</select></div></div></div>
@@ -3048,9 +3081,9 @@ function rsLoad(){
 // ── Storage & backup ──
 function storageInit(){
   const info=document.getElementById('storageInfo');if(!info)return;
-  info.innerHTML=CLOUD()?'☁️ <b>Cloud mode</b> — synced to your own Google Sheet via the Apps Script URL below.':'🔒 <b>Private mode</b> — everything is encrypted and stored only in this browser on this device. If you clear site data or forget the password, it cannot be recovered, so export a backup now and then.';
-  document.getElementById('cloudUrl').value=SCRIPT_URL;document.getElementById('cloudOff').style.display=CLOUD()?'':'none';
-  const t=document.getElementById('setPwText');if(t&&CLOUD())t.textContent='Set once — works on every device that uses your Apps Script.';
+  info.innerHTML=SYNC()?'☁️ <b>Synced</b> — your diary is encrypted on this device and mirrored to <b>your own</b> Google Sheet as scrambled text only. Every device unlocks it with the same password.':'🔒 <b>Private mode</b> — everything is encrypted and stored only in this browser on this device. If you clear site data or forget the password, it cannot be recovered, so export a backup now and then.';
+  const t=document.getElementById('setPwText');if(t)t.textContent=SYNC()?'This password encrypts your diary before it is uploaded — Google can never read it. You will use it on every device.':'Your diary is encrypted on this device with this password.';
+  document.getElementById('cloudUrl').value=SCRIPT_URL;document.getElementById('cloudOff').style.display=SYNC()?'':'none';document.getElementById('cloudNow').style.display=SYNC()?'':'none';
 }
 async function exportBackup(){
   const r=await api({action:'load',userId:'user1'});
@@ -3071,14 +3104,25 @@ async function importBackup(ev){
   showLoading(false);
   if(ok){alert('Backup restored. The app will reload.');location.reload();}
 }
+async function syncNow(){
+  if(!SYNC())return;
+  showLoading(true);
+  try{
+    const r=await api({action:'load',userId:'user1'});
+    if(!r.success)throw new Error(r.message);
+    if(r.offline){showMessage('storageMessage','⚠️ Could not reach your cloud — showing this device\'s copy','error');}
+    else{applyLoaded(r.data);showMessage('storageMessage','✅ Synced — this screen now shows the latest from your cloud','success');}
+  }catch(e){showMessage('storageMessage','❌ '+(e.message||e),'error');}
+  showLoading(false);
+}
 function saveCloudUrl(){
   const u=document.getElementById('cloudUrl').value.trim();
   if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)){showMessage('storageMessage','❌ Paste the full Apps Script web app URL (ends in /exec)','error');return;}
-  if(!confirm('Switch to cloud mode? Local and cloud data are separate. Export a backup first if you want to move your data. You will be locked and asked for the cloud password.'))return;
+  if(!confirm('Turn on encrypted sync?\n\n• If your cloud already holds a diary, this device will switch to it (unlock with that diary\'s password).\n• If the cloud is empty, this device\'s diary is uploaded (encrypted).\n\nExport a backup first if unsure.'))return;
   lsSet('scriptUrl',u);unlockedClear();location.reload();
 }
 function disconnectCloud(){
-  if(!confirm('Disconnect cloud sync and go back to private on-device mode?'))return;
+  if(!confirm('Stop syncing? Your diary stays on this device (and in your Sheet) — it just stops updating.'))return;
   try{localStorage.removeItem(NS+'scriptUrl');}catch(e){}unlockedClear();location.reload();
 }
 storageInit();

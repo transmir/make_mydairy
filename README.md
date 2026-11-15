@@ -22,23 +22,31 @@ The **Speaking Coach** tab helps a Telugu-speaking, English-medium-educated prof
 The **Research Desk** tab embeds two literature-survey desks: **Gaussian Splatting** (a built-in snapshot of about 3,000 papers, venues, classics, a learning path and a 90-day Blender plan) and **Audio Classification** (arXiv search, venues, DCASE, a learning path). Pick a desk from the menu at the top of the tab.
 
 * Ticks, the reading list and comparisons are stored only in this browser, under this diary's own namespace.
-* **Live arXiv papers** need your own Apps Script (see below): the desks ask it for the newest papers. Without it, the Splat desk shows its built-in snapshot, and the Audio desk's paper list stays empty (its other tabs still work).
+* **Live arXiv papers** need your own Apps Script helper (set up from inside the tab, or use the sync script): the desks ask it for the newest papers. Without it, the Splat desk shows its built-in snapshot, and the Audio desk's paper list stays empty (its other tabs still work).
 * No other diary's backend is used.
 
 ## Privacy
 
 * **Default: private mode.** All data stays in *this browser on this device*, encrypted with AES-256-GCM using a key derived from your password (PBKDF2, 250k iterations). Nothing is sent anywhere.
 * Forgetting the password means the data **cannot be recovered**. Use *Profile → Storage → Export backup* regularly (backups are plain JSON — store them safely).
-* Clearing the browser's site data deletes the diary. Export a backup first.
+* Clearing the browser's site data deletes the diary (unless you turned on encrypted sync below). Export a backup first.
 * Video/audio recordings can be downloaded to your device. Uploading them needs the optional cloud connection below.
 
-## Optional: cloud sync with your own Google Sheet
+## Same diary on all your devices (optional, end-to-end encrypted)
 
-1. Create a new Google Sheet → **Extensions → Apps Script**.
+Turn this on to use one diary on your phone, laptop and any other browser — with the same password everywhere.
+
+1. Create a new Google Sheet that belongs only to this diary → **Extensions → Apps Script**.
 2. Paste in `backend/Code.gs`, then **Deploy → New deployment → Web app** (Execute as: *Me*, Access: *Anyone*), authorize, and copy the `/exec` URL.
-3. In the diary: **Profile → Storage → Apps Script URL → Connect**.
+3. In the diary: **Profile → Storage & Backup → Apps Script URL → Connect**. If this device already has a diary, it is uploaded; if your cloud already has one, this device switches to it.
+4. On every other device or browser: open the diary, paste the same URL (Profile → Storage, or the first-run screen after connecting), and unlock with your diary password.
 
-Use a Sheet that belongs only to this diary. Cloud mode stores data in that Sheet's cells (not encrypted) and uses a separate password stored in the Sheet.
+How it stays private:
+* Everything is encrypted **in the browser** (AES-256-GCM, key derived from your password) before it is sent. Your Sheet only contains scrambled text; your password and key never leave your devices.
+* Treat the web app URL like a key: anyone who has it could read the scrambled text or overwrite/delete it (they still can't decrypt it). Keep regular backups.
+* Saves go to the cloud automatically and are kept on the device if you are offline (they upload next time). Use **Sync now** to pull changes made on another device. If two devices edit the same section at once, the last save wins — press Sync now before editing on a second device.
+* Recordings uploaded to Google Drive are ordinary files in your Drive (not encrypted).
+* Changing the password re-encrypts everything; other devices must then use the new password.
 
 ## Hosting
 

@@ -1,5 +1,5 @@
 // ============================================================
-// My Private Diary – OPTIONAL Google Apps Script backend (cloud sync)
+// My Private Diary – OPTIONAL Google Apps Script backend (end-to-end encrypted sync)
 // Create YOUR OWN Google Sheet and paste this in — never reuse someone else's deployment URL.
 // Open via: Google Sheet → Extensions → Apps Script
 // Requests come in as GET with ?data=<JSON> parameter
@@ -36,6 +36,11 @@ function dispatch(payload) {
     if (action === 'saveVideoToDrive') return saveVideoToDrive(payload);
     if (action === 'saveAudioToDrive') return saveAudioToDrive(payload);
     if (action === 'arxiv')            return searchArxiv(payload);
+    // End-to-end encrypted sync: the server only ever stores ciphertext
+    if (action === 'e2eConfig')        return e2eConfig_();
+    if (action === 'e2eSetConfig')     return e2eSetConfig_(payload);
+    if (action === 'blobPut')          return blobPut_(payload);
+    if (action === 'blobGetAll')       return blobGetAll_();
 
     return respond(false, 'Unknown action: ' + action);
   } catch (err) {
@@ -156,7 +161,8 @@ function saveVideoToDrive(data) {
     const file    = userFolder.createFile(blob);
     const fileUrl = file.getUrl();
 
-    // Log entry in notes sheet
+    // Log entry in notes sheet (skipped for end-to-end encrypted diaries: the app keeps its own encrypted list)
+    if (data.e2e) return respond(true, 'Video saved to Google Drive', { driveUrl: fileUrl });
     const notesSheet = getOrCreateSheet(userId + '_notes');
     const raw        = notesSheet.getRange(1, 1).getValue();
     let   notesData  = {};
@@ -190,6 +196,7 @@ function saveAudioToDrive(data) {
     const file    = userFolder.createFile(blob);
     const fileUrl = file.getUrl();
 
+    if (data.e2e) return respond(true, 'Audio saved to Google Drive', { driveUrl: fileUrl });
     const notesSheet = getOrCreateSheet(userId + '_notes');
     const raw        = notesSheet.getRange(1, 1).getValue();
     let   notesData  = {};
@@ -278,6 +285,63 @@ function arxivQuery_(query, start, max) {
   return { papers: papers, total: total, query: query };
 }
 
+
+// ── End-to-end encrypted sync (ciphertext only) ───────────────
+// The app encrypts everything in the browser; these actions just store and return opaque strings.
+// Long strings are split across rows because a Sheet cell holds at most 50,000 characters.
+var E2E_TYPES = ['habits', 'notes', 'todos', 'settings', 'papers', 'notesfiles', 'flowmap', 'fitness', 'english'];
+
+function putChunks_(sheet, str) {
+  sheet.clearContents();
+  var size = 45000, rows = [];
+  for (var i = 0; i < str.length; i += size) rows.push([str.substr(i, size)]);
+  if (!rows.length) rows.push(['']);
+  sheet.getRange(1, 1, rows.length, 1).setValues(rows);
+}
+function getChunks_(sheet) {
+  var n = sheet.getLastRow();
+  if (!n) return '';
+  return sheet.getRange(1, 1, n, 1).getValues().map(function (r) { return r[0]; }).join('');
+}
+function e2eConfig_() {
+  var sh = getSpreadsheet().getSheetByName('e2e_config');
+  return respond(true, 'ok', { cfg: sh ? (getChunks_(sh) || null) : null });
+}
+function e2eSetConfig_(p) {
+  var cfg = String(p.cfg || '');
+  if (!cfg) return respond(false, 'Missing config');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    var sh  = getOrCreateSheet('e2e_config');
+    var cur = getChunks_(sh);
+    if (p.mode === 'create' && cur) return respond(false, 'exists');
+    if (p.mode === 'replace') {
+      if (!cur) return respond(false, 'outdated');
+      var c = JSON.parse(cur);
+      if (c.check !== p.prev) return respond(false, 'outdated');
+    }
+    putChunks_(sh, cfg);
+    return respond(true, 'ok');
+  } finally { lock.releaseLock(); }
+}
+function blobPut_(p) {
+  if (E2E_TYPES.indexOf(p.type) < 0) return respond(false, 'Unknown type');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    putChunks_(getOrCreateSheet('e2e_' + p.type), String(p.data || ''));
+    return respond(true, 'ok');
+  } finally { lock.releaseLock(); }
+}
+function blobGetAll_() {
+  var ss = getSpreadsheet(), out = {};
+  E2E_TYPES.forEach(function (t) {
+    var sh = ss.getSheetByName('e2e_' + t);
+    if (sh) { var v = getChunks_(sh); if (v) out[t] = v; }
+  });
+  return respond(true, 'ok', { blobs: out });
+}
 
 // ── Helpers ───────────────────────────────────────────────────
 function getOrCreateSheet(name) {
