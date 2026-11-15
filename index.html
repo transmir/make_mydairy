@@ -738,6 +738,7 @@ button:active:not(:disabled){transform:scale(.97);}
     </div>
     <button class="btn btn-primary" onclick="setPasswordAction()"><i class="fas fa-lock"></i> Set Password & Continue</button>
     <div id="setPwMessage" class="message"></div>
+    <p style="margin-top:16px;font-size:.88em;"><a href="#" onclick="gateSync();return false" style="color:var(--accent)">Already use this diary on another device? Connect to it</a></p>
   </div>
 
   <div id="enterPasswordScreen" class="gate-screen">
@@ -750,6 +751,7 @@ button:active:not(:disabled){transform:scale(.97);}
     </div>
     <button class="btn btn-primary" id="unlockBtn" onclick="checkPasswordAction()"><i class="fas fa-unlock"></i> Unlock</button>
     <div id="pwMessage" class="message"></div>
+    <p style="margin-top:16px;font-size:.88em;"><a href="#" onclick="gateSync();return false" style="color:var(--accent)">Not your diary? Connect to a synced one</a></p>
   </div>
 
 </div>
@@ -1096,6 +1098,7 @@ button:active:not(:disabled){transform:scale(.97);}
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btn-primary btn-sm" onclick="saveCloudUrl()"><i class="fas fa-link"></i> Connect</button>
           <button class="btn btn-secondary btn-sm" id="cloudNow" onclick="syncNow()"><i class="fas fa-rotate"></i> Sync now</button>
+          <button class="btn btn-secondary btn-sm" id="cloudLink" onclick="copySetupLink()"><i class="fas fa-link"></i> Copy setup link for another device</button>
           <button class="btn btn-secondary btn-sm" id="cloudOff" onclick="disconnectCloud()"><i class="fas fa-link-slash"></i> Disconnect</button>
         </div>
         <div id="storageMessage" class="message"></div>
@@ -1166,6 +1169,28 @@ const NS='mydairy:';
 function lsGet(k){try{return localStorage.getItem(NS+k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(NS+k,v);return true;}catch(e){return false;}}
 let SCRIPT_URL=lsGet('scriptUrl')||'';
+const SYNC_URL_RX=/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/;
+(function adoptSyncLink(){ // a setup link (…/#sync=<url>) copied from Profile on another device connects this browser to the same synced diary
+  try{
+    const m=location.hash.match(/^#sync=(.+)$/);if(!m)return;
+    const u=decodeURIComponent(m[1]);
+    history.replaceState(null,'',location.pathname+location.search); // never leave the URL in the address bar
+    if(!SYNC_URL_RX.test(u)||u===SCRIPT_URL)return;
+    if(lcfg()&&!confirm('This link connects your diary to a sync address:\n'+u.slice(0,70)+'…\n\nThis device already has a diary. The synced diary will replace it here (the old copy is kept aside). Continue?'))return;
+    lsSet('scriptUrl',u);SCRIPT_URL=u;
+  }catch(e){}
+})();
+function gateSync(){
+  const u=(prompt('Paste your sync address (the Apps Script web app URL, ends in /exec):')||'').trim();
+  if(!u)return;
+  if(!SYNC_URL_RX.test(u)){alert('That does not look like an Apps Script web app URL (it should end in /exec).');return;}
+  lsSet('scriptUrl',u);location.reload();
+}
+function copySetupLink(){
+  if(!SCRIPT_URL)return;
+  const link=location.origin+location.pathname+'#sync='+encodeURIComponent(SCRIPT_URL);
+  navigator.clipboard.writeText(link).then(()=>showMessage('storageMessage','✅ Setup link copied. Open it on your other device, then unlock with your password. It contains your sync address — keep it private.','success'),()=>{prompt('Copy this setup link:',link);});
+}
 const DATA_TYPES=['habits','notes','todos','settings','papers','notesfiles','flowmap','fitness','english'];
 let _key=null;
 const _enc=new TextEncoder(),_dec=new TextDecoder();
@@ -3083,7 +3108,7 @@ function storageInit(){
   const info=document.getElementById('storageInfo');if(!info)return;
   info.innerHTML=SYNC()?'☁️ <b>Synced</b> — your diary is encrypted on this device and mirrored to <b>your own</b> Google Sheet as scrambled text only. Every device unlocks it with the same password.':'🔒 <b>Private mode</b> — everything is encrypted and stored only in this browser on this device. If you clear site data or forget the password, it cannot be recovered, so export a backup now and then.';
   const t=document.getElementById('setPwText');if(t)t.textContent=SYNC()?'This password encrypts your diary before it is uploaded — Google can never read it. You will use it on every device.':'Your diary is encrypted on this device with this password.';
-  document.getElementById('cloudUrl').value=SCRIPT_URL;document.getElementById('cloudOff').style.display=SYNC()?'':'none';document.getElementById('cloudNow').style.display=SYNC()?'':'none';
+  document.getElementById('cloudUrl').value=SCRIPT_URL;document.getElementById('cloudOff').style.display=SYNC()?'':'none';document.getElementById('cloudNow').style.display=SYNC()?'':'none';document.getElementById('cloudLink').style.display=SYNC()?'':'none';
 }
 async function exportBackup(){
   const r=await api({action:'load',userId:'user1'});
@@ -3117,7 +3142,7 @@ async function syncNow(){
 }
 function saveCloudUrl(){
   const u=document.getElementById('cloudUrl').value.trim();
-  if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)){showMessage('storageMessage','❌ Paste the full Apps Script web app URL (ends in /exec)','error');return;}
+  if(!SYNC_URL_RX.test(u)){showMessage('storageMessage','❌ Paste the full Apps Script web app URL (ends in /exec)','error');return;}
   if(!confirm('Turn on encrypted sync?\n\n• If your cloud already holds a diary, this device will switch to it (unlock with that diary\'s password).\n• If the cloud is empty, this device\'s diary is uploaded (encrypted).\n\nExport a backup first if unsure.'))return;
   lsSet('scriptUrl',u);unlockedClear();location.reload();
 }
