@@ -29,24 +29,26 @@ The **Research Desk** tab embeds two literature-survey desks: **Gaussian Splatti
 
 * **Default: private mode.** All data stays in *this browser on this device*, encrypted with AES-256-GCM using a key derived from your password (PBKDF2, 250k iterations). Nothing is sent anywhere.
 * Forgetting the password means the data **cannot be recovered**. Use *Profile → Storage → Export backup* regularly (backups are plain JSON — store them safely).
-* Clearing the browser's site data deletes the diary (unless you turned on encrypted sync below). Export a backup first.
+* Clearing the browser's site data deletes the diary from that browser (unless you turned on encrypted Drive sync below). Export a backup first.
 * Video/audio recordings can be downloaded to your device. Uploading them needs the optional cloud connection below.
 
-## Same diary on all your devices (optional, end-to-end encrypted)
+## Same diary on all your devices (optional, end-to-end encrypted, stored in your Google Drive)
 
-Turn this on to use one diary on your phone, laptop and any other browser — with the same password everywhere.
+Turn this on to use one diary on your phone, laptop and any other browser — with the same password everywhere. Your diary is saved as **encrypted files in your own Google Drive** (folder *My Private Diary (encrypted)*). No Google Sheet is needed.
 
-1. Create a new Google Sheet that belongs only to this diary → **Extensions → Apps Script**.
-2. Paste in `backend/Code.gs`, then **Deploy → New deployment → Web app** (Execute as: *Me*, Access: *Anyone*), authorize, and copy the `/exec` URL.
-3. In the diary: **Profile → Storage & Backup → Apps Script URL → Connect**. If this device already has a diary, it is uploaded; if your cloud already has one, this device switches to it.
-4. On every other device or browser: open the diary, paste the same URL (Profile → Storage, or the first-run screen after connecting), and unlock with your diary password.
+1. Go to <https://script.google.com> → **New project** and paste in `backend/Code.gs` → Save.
+2. **Deploy → New deployment → Web app** (Execute as: *Me*, Who has access: *Anyone*) → Deploy → authorize (it asks for Drive access) → copy the web app URL (ends in `/exec`).
+3. In the diary: **Profile → Storage & Backup → Apps Script URL → Connect**. If this device already has a diary, it is uploaded; if your Drive already holds one, this device switches to it.
+4. On another device: on your main device press **Copy setup link for another device**, open that link on the other device and unlock with your password. (Or use "Already use this diary on another device? Connect to it" on the first screen and paste the URL.)
+
+Buttons in Profile → Storage & Backup: **Back up to Drive now** (push everything immediately), **Restore from Drive** (pull the latest from Drive onto this screen), **Test sync** (checks the connection and shows the exact problem if there is one). A red "Last sync problem" line appears if an upload or download failed.
 
 How it stays private:
-* Everything is encrypted **in the browser** (AES-256-GCM, key derived from your password) before it is sent. Your Sheet only contains scrambled text; your password and key never leave your devices.
-* Treat the web app URL like a key: anyone who has it could read the scrambled text or overwrite/delete it (they still can't decrypt it). Keep regular backups.
-* Saves go to the cloud automatically and are kept on the device if you are offline (they upload next time). Use **Sync now** to pull changes made on another device. If two devices edit the same section at once, the last save wins — press Sync now before editing on a second device.
-* Recordings uploaded to Google Drive are ordinary files in your Drive (not encrypted).
-* Changing the password re-encrypts everything; other devices must then use the new password.
+* Everything is encrypted **in the browser** (AES-256-GCM, key derived from your password) before it is sent. Drive only holds scrambled files; your password and key never leave your devices.
+* Treat the web app URL like a key: anyone who has it could read the scrambled files or overwrite/delete them (they still can't decrypt them). Keep regular backups.
+* Saves go to Drive automatically and are kept on the device if you are offline (they upload next time). If two devices edit the same section at once, the last save wins — press **Restore from Drive** before editing on a second device.
+* If you earlier used the Sheet-based version, the new script still reads the old Sheet data as a fallback.
+* Recordings uploaded to Google Drive are ordinary files (not encrypted). Changing the password re-encrypts everything; other devices must then use the new password.
 
 ## Hosting
 

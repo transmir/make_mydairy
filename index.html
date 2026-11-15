@@ -1093,11 +1093,13 @@ button:active:not(:disabled){transform:scale(.97);}
         </div>
         <p style="color:var(--muted);font-size:.8em;">Backups are plain JSON (not encrypted) — keep them somewhere safe.</p>
         <h3 style="margin-top:22px;">☁️ Sync across devices (optional, end-to-end encrypted)</h3>
-        <p style="color:var(--muted);font-size:.88em;line-height:1.6;margin-bottom:10px;">Use <b>your own</b> Google Sheet + Apps Script (see README). Your data is encrypted here before upload, so Google only stores scrambled text; keep the web app URL private. Open the diary on another device, paste the same URL, and unlock with the same password. Saves go to the cloud automatically; press <b>Sync now</b> on a device to pull changes made elsewhere.</p>
+        <p style="color:var(--muted);font-size:.88em;line-height:1.6;margin-bottom:10px;">Use <b>your own</b> Google Apps Script (see README) — your diary is saved as encrypted files in your Google Drive. It is encrypted here before upload, so Google only stores scrambled text; keep the web app URL private. On another device use <b>Copy setup link</b> (or paste the same URL) and unlock with the same password. Saves go to Drive automatically; <b>Back up to Drive now</b> pushes everything immediately, and <b>Restore from Drive</b> pulls the latest from Drive.</p>
         <div class="input-row"><label>Apps Script web app URL</label><input type="url" id="cloudUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btn-primary btn-sm" onclick="saveCloudUrl()"><i class="fas fa-link"></i> Connect</button>
-          <button class="btn btn-secondary btn-sm" id="cloudNow" onclick="syncNow()"><i class="fas fa-rotate"></i> Sync now</button>
+          <button class="btn btn-primary btn-sm" id="cloudBackup" onclick="driveBackupNow()"><i class="fas fa-cloud-arrow-up"></i> Back up to Drive now</button>
+          <button class="btn btn-secondary btn-sm" id="cloudNow" onclick="syncNow()"><i class="fas fa-cloud-arrow-down"></i> Restore from Drive</button>
+          <button class="btn btn-secondary btn-sm" id="cloudTest" onclick="syncTest()"><i class="fas fa-stethoscope"></i> Test sync</button>
           <button class="btn btn-secondary btn-sm" id="cloudLink" onclick="copySetupLink()"><i class="fas fa-link"></i> Copy setup link for another device</button>
           <button class="btn btn-secondary btn-sm" id="cloudOff" onclick="disconnectCloud()"><i class="fas fa-link-slash"></i> Disconnect</button>
         </div>
@@ -1204,8 +1206,17 @@ function unlockedClear(){try{sessionStorage.removeItem(NS+'unlocked');}catch(e){
 // ── Optional cloud mirror: your own Google Sheet only ever receives ENCRYPTED text (the password never leaves this device) ──
 const SYNC=()=>!!SCRIPT_URL;
 async function cloudCall(payload,post){
-  const r=post?await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}):await fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload)));
-  const j=await r.json();if(!j.success)throw new Error(j.message||'Cloud error');return j;
+  try{
+    const r=post?await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}):await fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload)));
+    let j;try{j=await r.json();}catch(e){throw new Error('The Apps Script did not answer correctly. Check that "Who has access" is Anyone and that you deployed the latest Code.gs as a NEW version.');}
+    if(!j.success){const m=j.message||'Cloud error';throw new Error(/^Unknown action/.test(m)?'Your Apps Script is running an old version. Paste the latest backend/Code.gs and deploy a NEW version. ('+m+')':m);}
+    try{localStorage.removeItem(NS+'syncErr');}catch(e){}
+    return j;
+  }catch(e){
+    const m=(e instanceof TypeError)?'Cannot reach the Apps Script (offline, wrong URL, or access is not set to Anyone).':(e.message||String(e));
+    if(m!=='exists'&&m!=='outdated')lsSet('syncErr',new Date().toLocaleString()+' — '+m);
+    throw new Error(m);
+  }
 }
 function pendGet(){try{return JSON.parse(lsGet('pending')||'[]');}catch(e){return [];}}
 function pendSet(a){lsSet('pending',JSON.stringify([...new Set(a)]));}
@@ -3106,9 +3117,10 @@ function rsLoad(){
 // ── Storage & backup ──
 function storageInit(){
   const info=document.getElementById('storageInfo');if(!info)return;
-  info.innerHTML=SYNC()?'☁️ <b>Synced</b> — your diary is encrypted on this device and mirrored to <b>your own</b> Google Sheet as scrambled text only. Every device unlocks it with the same password.':'🔒 <b>Private mode</b> — everything is encrypted and stored only in this browser on this device. If you clear site data or forget the password, it cannot be recovered, so export a backup now and then.';
+  info.innerHTML=SYNC()?'☁️ <b>Synced</b> — your diary is encrypted on this device and stored as encrypted files in <b>your own</b> Google Drive (folder “My Private Diary (encrypted)”). Google only holds scrambled text; every device unlocks it with the same password.':'🔒 <b>Private mode</b> — everything is encrypted and stored only in this browser on this device. If you clear site data or forget the password, it cannot be recovered, so export a backup now and then.';
   const t=document.getElementById('setPwText');if(t)t.textContent=SYNC()?'This password encrypts your diary before it is uploaded — Google can never read it. You will use it on every device.':'Your diary is encrypted on this device with this password.';
-  document.getElementById('cloudUrl').value=SCRIPT_URL;document.getElementById('cloudOff').style.display=SYNC()?'':'none';document.getElementById('cloudNow').style.display=SYNC()?'':'none';document.getElementById('cloudLink').style.display=SYNC()?'':'none';
+  const er=lsGet('syncErr');if(SYNC()&&er)info.innerHTML+='<br><span style="color:#ef4444">⚠️ Last sync problem: '+engEsc(er)+'</span>';
+  document.getElementById('cloudUrl').value=SCRIPT_URL;document.getElementById('cloudOff').style.display=SYNC()?'':'none';document.getElementById('cloudNow').style.display=SYNC()?'':'none';document.getElementById('cloudLink').style.display=SYNC()?'':'none';['cloudBackup','cloudTest'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display=SYNC()?'':'none';});
 }
 async function exportBackup(){
   const r=await api({action:'load',userId:'user1'});
@@ -3129,6 +3141,28 @@ async function importBackup(ev){
   showLoading(false);
   if(ok){alert('Backup restored. The app will reload.');location.reload();}
 }
+async function driveBackupNow(){
+  if(!SYNC())return;
+  showLoading(true);
+  try{
+    const c=lcfg();if(!c)throw new Error('Nothing to back up yet');
+    let n=0;
+    await cloudCall({action:'e2eSetConfig',cfg:JSON.stringify(c),mode:'replace',prev:c.check},true).catch(async e=>{if(e.message==='outdated')await cloudCall({action:'e2eSetConfig',cfg:JSON.stringify(c),mode:'create'},true).catch(()=>{});else throw e;});
+    for(const t of DATA_TYPES){const v=lsGet('d:'+t);if(v){await cloudCall({action:'blobPut',type:t,data:v},true);n++;}}
+    pendSet([]);
+    showMessage('storageMessage','✅ Backed up '+n+' sections to your Google Drive (folder “My Private Diary (encrypted)”).','success');
+  }catch(e){showMessage('storageMessage','❌ '+(e.message||e),'error');}
+  storageInit();showLoading(false);
+}
+async function syncTest(){
+  showMessage('storageMessage','⏳ Testing…','info');
+  try{
+    const j=await cloudCall({action:'e2eConfig'});
+    const g=await cloudCall({action:'blobGetAll'});
+    showMessage('storageMessage','✅ Connected. Your Drive holds '+Object.keys(g.blobs||{}).length+' saved sections'+(j.cfg?' and a diary password record.':' but no diary yet.'),'success');
+  }catch(e){showMessage('storageMessage','❌ '+(e.message||e),'error');}
+  storageInit();
+}
 async function syncNow(){
   if(!SYNC())return;
   showLoading(true);
@@ -3136,7 +3170,7 @@ async function syncNow(){
     const r=await api({action:'load',userId:'user1'});
     if(!r.success)throw new Error(r.message);
     if(r.offline){showMessage('storageMessage','⚠️ Could not reach your cloud — showing this device\'s copy','error');}
-    else{applyLoaded(r.data);showMessage('storageMessage','✅ Synced — this screen now shows the latest from your cloud','success');}
+    else{applyLoaded(r.data);showMessage('storageMessage','✅ Restored — this screen now shows the latest from your Google Drive','success');}
   }catch(e){showMessage('storageMessage','❌ '+(e.message||e),'error');}
   showLoading(false);
 }

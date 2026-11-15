@@ -1,6 +1,7 @@
 // ============================================================
-// My Private Diary – OPTIONAL Google Apps Script backend (end-to-end encrypted sync)
-// Create YOUR OWN Google Sheet and paste this in — never reuse someone else's deployment URL.
+// My Private Diary – OPTIONAL Google Apps Script backend (end-to-end encrypted sync to your Google Drive)
+// Create YOUR OWN Apps Script project (script.google.com → New project, no Sheet needed for sync) and paste this in —
+// never reuse someone else's deployment URL.
 // Open via: Google Sheet → Extensions → Apps Script
 // Requests come in as GET with ?data=<JSON> parameter
 // ============================================================
@@ -286,26 +287,40 @@ function arxivQuery_(query, start, max) {
 }
 
 
-// ── End-to-end encrypted sync (ciphertext only) ───────────────
+// ── End-to-end encrypted sync (ciphertext only, stored as plain files in YOUR Google Drive) ──
 // The app encrypts everything in the browser; these actions just store and return opaque strings.
-// Long strings are split across rows because a Sheet cell holds at most 50,000 characters.
-var E2E_TYPES = ['habits', 'notes', 'todos', 'settings', 'papers', 'notesfiles', 'flowmap', 'fitness', 'english'];
+// Files live in the Drive folder "My Private Diary (encrypted)" — no Google Sheet is needed.
+var E2E_TYPES  = ['habits', 'notes', 'todos', 'settings', 'papers', 'notesfiles', 'flowmap', 'fitness', 'english'];
+var E2E_FOLDER = 'My Private Diary (encrypted)';
 
-function putChunks_(sheet, str) {
-  sheet.clearContents();
-  var size = 45000, rows = [];
-  for (var i = 0; i < str.length; i += size) rows.push([str.substr(i, size)]);
-  if (!rows.length) rows.push(['']);
-  sheet.getRange(1, 1, rows.length, 1).setValues(rows);
+function e2eFolder_() {
+  var it = DriveApp.getFoldersByName(E2E_FOLDER);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(E2E_FOLDER);
 }
-function getChunks_(sheet) {
-  var n = sheet.getLastRow();
-  if (!n) return '';
-  return sheet.getRange(1, 1, n, 1).getValues().map(function (r) { return r[0]; }).join('');
+// Older deployments kept ciphertext in Sheet rows; read those as a fallback so nothing is lost.
+function legacySheetRead_(name) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss && ss.getSheetByName('e2e_' + name);
+    if (!sh) return '';
+    var n = sh.getLastRow();
+    if (!n) return '';
+    return sh.getRange(1, 1, n, 1).getValues().map(function (r) { return r[0]; }).join('');
+  } catch (e) { return ''; }
+}
+function storeRead_(name) {
+  var it = e2eFolder_().getFilesByName(name + '.enc');
+  if (it.hasNext()) return it.next().getBlob().getDataAsString();
+  return legacySheetRead_(name);
+}
+function storeWrite_(name, str) {
+  var folder = e2eFolder_();
+  var it = folder.getFilesByName(name + '.enc');
+  if (it.hasNext()) it.next().setContent(str);
+  else folder.createFile(name + '.enc', str, MimeType.PLAIN_TEXT);
 }
 function e2eConfig_() {
-  var sh = getSpreadsheet().getSheetByName('e2e_config');
-  return respond(true, 'ok', { cfg: sh ? (getChunks_(sh) || null) : null });
+  return respond(true, 'ok', { cfg: storeRead_('config') || null });
 }
 function e2eSetConfig_(p) {
   var cfg = String(p.cfg || '');
@@ -313,15 +328,14 @@ function e2eSetConfig_(p) {
   var lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
-    var sh  = getOrCreateSheet('e2e_config');
-    var cur = getChunks_(sh);
+    var cur = storeRead_('config');
     if (p.mode === 'create' && cur) return respond(false, 'exists');
     if (p.mode === 'replace') {
       if (!cur) return respond(false, 'outdated');
       var c = JSON.parse(cur);
       if (c.check !== p.prev) return respond(false, 'outdated');
     }
-    putChunks_(sh, cfg);
+    storeWrite_('config', cfg);
     return respond(true, 'ok');
   } finally { lock.releaseLock(); }
 }
@@ -330,17 +344,22 @@ function blobPut_(p) {
   var lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
-    putChunks_(getOrCreateSheet('e2e_' + p.type), String(p.data || ''));
+    storeWrite_(p.type, String(p.data || ''));
     return respond(true, 'ok');
   } finally { lock.releaseLock(); }
 }
 function blobGetAll_() {
-  var ss = getSpreadsheet(), out = {};
-  E2E_TYPES.forEach(function (t) {
-    var sh = ss.getSheetByName('e2e_' + t);
-    if (sh) { var v = getChunks_(sh); if (v) out[t] = v; }
-  });
-  return respond(true, 'ok', { blobs: out });
+  var out = {}, seen = {};
+  var files = e2eFolder_().getFiles();
+  while (files.hasNext()) {
+    var f = files.next(), n = f.getName();
+    if (/\.enc$/.test(n)) {
+      var t = n.replace(/\.enc$/, '');
+      if (E2E_TYPES.indexOf(t) >= 0 && !seen[t]) { seen[t] = true; var v = f.getBlob().getDataAsString(); if (v) out[t] = v; }
+    }
+  }
+  E2E_TYPES.forEach(function (t) { if (!out[t]) { var v = legacySheetRead_(t); if (v) out[t] = v; } });
+  return respond(true, 'ok', { blobs: out, folder: E2E_FOLDER });
 }
 
 // ── Helpers ───────────────────────────────────────────────────
