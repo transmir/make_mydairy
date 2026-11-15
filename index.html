@@ -643,6 +643,25 @@ button:active:not(:disabled){transform:scale(.97);}
 .en-day.done .tx{color:var(--muted);text-decoration:line-through;}
 .en-word{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);margin-bottom:8px;color:var(--ink);}
 .en-word b{font-size:1.02em;}.en-word .te{color:var(--accent);}.en-word .ex{grid-column:1/-1;font-size:.84em;color:var(--muted);}
+.call-bg{position:fixed;inset:0;z-index:9600;display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:28px 20px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(120% 90% at 50% 0,color-mix(in srgb,var(--accent) 45%,#0b0d1c),#0b0d1c 70%);color:#fff;}
+.call-bg.open{display:flex;animation:fadeIn .25s;}
+.call-top{width:100%;display:flex;justify-content:space-between;align-items:center;font-variant-numeric:tabular-nums;opacity:.9;}
+.call-chip{background:rgba(255,255,255,.14);padding:5px 12px;border-radius:999px;font-size:.8em;}
+.call-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;max-width:640px;width:100%;text-align:center;}
+.call-av{width:132px;height:132px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:3.2em;box-shadow:0 0 0 0 rgba(255,255,255,.35);}
+.call-bg.listening .call-av{animation:callPulse 1.6s infinite;background:linear-gradient(135deg,#10b981,#34d399);}
+.call-bg.speaking .call-av{animation:callPulse 0.9s infinite;}
+.call-bg.thinking .call-av{opacity:.7;animation:blink 1.2s infinite;}
+@keyframes callPulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.45)}70%{box-shadow:0 0 0 34px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+.call-state{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.85em;opacity:.85;}
+.call-cap{font-size:1.05em;line-height:1.55;max-height:26vh;overflow-y:auto;opacity:.95;}
+.call-me{min-height:3.2em;font-size:1.1em;color:#a7f3d0;line-height:1.5;max-height:20vh;overflow-y:auto;}
+.call-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.call-btns button{width:78px;border:none;border-radius:20px;padding:12px 4px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:.72em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.call-btns button i{font-size:1.5em;}
+.call-btns button.on{background:#fff;color:#111;}
+.call-btns .call-end{background:#ef4444;}.call-btns .call-fb{background:rgba(16,185,129,.55);}
+.call-hint{font-size:.74em;opacity:.6;margin-top:12px;text-align:center;}
 .rh-time{font-size:3.2em;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:-.03em;}
 .rh-time.over{color:#ef4444;}.rh-time.rec{color:var(--accent);}
 .rh-metrics{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
@@ -698,6 +717,25 @@ button:active:not(:disabled){transform:scale(.97);}
     <div class="row"><div class="swatches" id="sheetSwatches"></div><button class="ft-btn ghost" onclick="toggleTheme()">🌓 Theme</button></div>
     <button class="ft-btn ghost" style="width:100%" onclick="closeMore();openCmdk()">🔍 Search everything</button>
   </div>
+</div>
+
+<!-- COACH CALL -->
+<div class="call-bg" id="callUI">
+  <div class="call-top"><span id="callTimer">00:00</span><span id="callPause" class="call-chip"></span></div>
+  <div class="call-center">
+    <div class="call-av" id="callAv"><i class="fas fa-user-tie"></i></div>
+    <div class="call-state" id="callState">Connecting…</div>
+    <div class="call-cap" id="callCap"></div>
+    <div class="call-me" id="callMe"></div>
+  </div>
+  <div class="call-btns">
+    <button onclick="callMuteToggle()" id="callMute"><i class="fas fa-microphone"></i><span>Mute</span></button>
+    <button onclick="callMore()"><i class="fas fa-hourglass-half"></i><span>Wait longer</span></button>
+    <button onclick="callSkip()"><i class="fas fa-forward"></i><span>Skip coach</span></button>
+    <button onclick="callEnd(false,true)" class="call-fb"><i class="fas fa-clipboard-check"></i><span>End &amp; feedback</span></button>
+    <button onclick="callEnd(false,false)" class="call-end"><i class="fas fa-phone-slash"></i><span>End</span></button>
+  </div>
+  <div class="call-hint">Speak naturally — take your time. Headphones work best so the coach doesn't hear itself.</div>
 </div>
 
 <!-- COMMAND PALETTE -->
@@ -1019,7 +1057,7 @@ button:active:not(:disabled){transform:scale(.97);}
         <button data-t="talk" class="on">💬 Coach</button><button data-t="rehearse">🎤 Rehearse</button><button data-t="plan">📅 90-Day Plan</button><button data-t="words">📚 My Phrases</button><button data-t="setup">⚙️ Setup</button>
       </div>
       <div id="engTalk">
-        <div class="en-bar"><span class="ft-tag" id="engToday"></span><span class="ft-sub" id="engStreak"></span></div>
+        <div class="en-bar"><span class="ft-tag" id="engToday"></span><span class="ft-sub" id="engStreak"></span><button class="ft-btn" style="margin-left:auto" onclick="callStart()">📞 Start a call with your coach</button></div>
         <div class="en-chat">
           <div class="en-msgs" id="engMsgs"></div>
           <div class="en-chips">
@@ -2682,7 +2720,7 @@ const ENG_DAYTYPES=[
 const ENG_DEFAULT_MODEL='gemini-2.5-flash-lite';
 let eng=null,engTab='talk',engBusy=false,engRec=null,engErr='',engSaveT=null;
 
-function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak:false,autoSend:true,rate:1,level:'upper-intermediate',telugu:'ask',role:'',audience:''},start:ftToday(),memory:'',today:{date:ftToday(),msgs:[]},words:[],mistakes:[],log:{},plan:{},rehearsals:[]};}
+function engDefaults(){return {v:1,cfg:{key:'',model:ENG_DEFAULT_MODEL,autoSpeak:false,autoSend:true,rate:1,pause:2.5,level:'upper-intermediate',telugu:'ask',role:'',audience:''},start:ftToday(),memory:'',today:{date:ftToday(),msgs:[]},words:[],mistakes:[],log:{},plan:{},rehearsals:[]};}
 function engLoad(remote){
   eng=(remote&&remote.cfg)?remote:engDefaults();
   const d=engDefaults();Object.keys(d).forEach(k=>{if(eng[k]===undefined)eng[k]=d[k];});eng.cfg=Object.assign({},d.cfg,eng.cfg);
@@ -2699,7 +2737,7 @@ function engPlanFor(n){const c=Math.min(Math.max(n,1),90);return {n:c,w:ENG_WEEK
 function engStreak(){let n=0;for(let i=0;i<400;i++){const d=ftShift(ftToday(),-i);if((eng.log[d]&&eng.log[d].msgs>0)||(d===eng.today.date&&eng.today.msgs.some(m=>m.role==='user')))n++;else if(i>0)break;}return n;}
 
 // ── AI ──
-function engSystem(){
+function engSystem(call){
   const name=(currentUser&&currentUser.displayName)||'the learner',day=engDayNo(),p=engPlanFor(day),c=eng.cfg;
   const tel=c.telugu==='off'?'Do not use Telugu at all.':(c.telugu==='light'?'After a correction you may add ONE very short Telugu note (తెలుగు script) when it truly helps.':'Use English only. Use Telugu (తెలుగు script) ONLY if the learner writes in Telugu or asks for it, or for a really tricky explanation.');
   const ctx=[c.role&&('Their role/field: '+c.role+'.'),c.audience&&('Typical audience/situations: '+c.audience+'.')].filter(Boolean).join(' ');
@@ -2719,7 +2757,8 @@ WHAT YOU REMEMBER ABOUT THE LEARNER FROM EARLIER DAYS:
 ${eng.memory||'(nothing yet — this is the beginning; learn about their work and audiences)'}
 MACHINE LINES (hidden from the learner; put them at the very END of every reply, each on its own line, leave empty if none):
 [[words: phrase|when to use it (Telugu only if they asked for Telugu)|short example sentence; phrase2|meaning|example]]
-[[fix: what they said => better version | very short reason; ...]]`;
+[[fix: what they said => better version | very short reason; ...]]${call?`
+VOICE CALL MODE: this is a live phone call and your words are spoken aloud. Reply in 1-4 short, natural spoken sentences — no lists, no markdown, no emojis, no headings. Ask ONE question at a time. If there is an important mistake, give at most ONE quick correction spoken naturally (for example: Quick tip, say I went, not I did go). Do not read out the machine lines; just keep them at the very end.`:''}`;
 }
 async function engListModels(){
   const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':eng.cfg.key}});
@@ -2802,9 +2841,10 @@ async function engCompactNow(){
 }
 
 // ── chat ──
-async function engSend(text){
-  text=(text||'').trim();if(!text||engBusy)return;
-  if(!eng.cfg.key){engTab='setup';engRender();return;}
+async function engSend(text,opts){
+  const call=!!(opts&&opts.call);let reply='';
+  text=(text||'').trim();if(!text||engBusy)return '';
+  if(!eng.cfg.key){if(!call){engTab='setup';engRender();}else engErr='Add your Gemini key in Setup first.';return '';}
   engBusy=true;engErr='';
   try{
     await engRollover();
@@ -2812,12 +2852,14 @@ async function engSend(text){
     const d=ftToday();eng.log[d]=eng.log[d]||{msgs:0};eng.log[d].msgs++;
     engRender();
     if(eng.today.msgs.length>28)await engCompact(eng.today.msgs.splice(0,20)); // long day: fold the oldest part into memory
-    const raw=await engGemini(engSystem(),engContents(eng.today.msgs),900);
+    const raw=await engGemini(engSystem(call),engContents(eng.today.msgs),call?450:900);
     const p=engParse(raw);engKeep(p);
-    eng.today.msgs.push({role:'model',text:p.txt||raw});
-    if(eng.cfg.autoSpeak)engSpeak(p.txt);
-  }catch(e){engErr=e.message||String(e);}
+    reply=p.txt||raw;
+    eng.today.msgs.push({role:'model',text:reply});
+    if(!call&&eng.cfg.autoSpeak)engSpeak(p.txt);
+  }catch(e){engErr=e.message||String(e);reply='';}
   engBusy=false;engSaveSoon();engRender();
+  return reply;
 }
 function engSendInput(){const i=document.getElementById('engInput');const t=i.value;i.value='';i.style.height='auto';engSend(t);}
 function engLesson(){const p=engPlanFor(engDayNo());engSend(`Let's do today's session. It is Day ${p.n}, week "${p.w.t}", a ${p.d.n} day. Task: ${p.d.f(p.w)} Guide me through it step by step, keep it interactive, and make me speak a lot.`);}
@@ -2848,7 +2890,7 @@ function engSpeak(text){
   const vs=speechSynthesis.getVoices();const v=vs.find(x=>/en[-_]IN/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
   speechSynthesis.speak(u);
 }
-function engStop(){try{rhStop(true);}catch(e){}try{speechSynthesis.cancel();}catch(e){}if(engRec){try{engRec.stop();}catch(e){}engRec=null;}const m=document.getElementById('engMic');if(m)m.classList.remove('rec');}
+function engStop(){try{callEnd(true);}catch(e){}try{rhStop(true);}catch(e){}try{speechSynthesis.cancel();}catch(e){}if(engRec){try{engRec.stop();}catch(e){}engRec=null;}const m=document.getElementById('engMic');if(m)m.classList.remove('rec');}
 function engMic(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){alert('Voice input is not supported in this browser. Please use Chrome or Edge (or type instead).');return;}
@@ -2928,6 +2970,7 @@ function engRenderSetup(){
   <div class="ft-card"><h3>🔊 Voice &amp; behaviour</h3>
     <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSpeak?'checked':''} onchange="eng.cfg.autoSpeak=this.checked;engSaveSoon()"> Read the coach's replies aloud automatically</label>
     <label style="display:flex;gap:10px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" ${c.autoSend?'checked':''} onchange="eng.cfg.autoSend=this.checked;engSaveSoon()"> Send automatically when I finish speaking</label>
+    <label style="display:block;color:var(--ink);margin-bottom:6px">Call: wait <b id="engPauseV">${c.pause||2.5}</b>s of silence before the coach replies <input type="range" min="1.5" max="6" step="0.5" value="${c.pause||2.5}" oninput="eng.cfg.pause=+this.value;document.getElementById('engPauseV').textContent=this.value;engSaveSoon()" style="margin-bottom:12px"></label>
     <label style="display:block;color:var(--ink)">Speaking speed: <b id="engRateV">${c.rate}</b> <input type="range" min="0.6" max="1.2" step="0.1" value="${c.rate}" oninput="eng.cfg.rate=+this.value;document.getElementById('engRateV').textContent=this.value;engSaveSoon()"></label>
     <p class="ft-sub" style="margin-top:10px">Voice input uses your browser's speech service (Chrome/Edge — Chrome sends the audio to Google for recognition). It listens in English (India).</p></div>
   <div class="ft-card"><h3>🧠 Daily auto-compact</h3>
@@ -2952,6 +2995,140 @@ async function engSaveCfg(test){
 }
 function engRestart(){if(confirm('Restart the 90-day plan from today? Ticks will be cleared.')){eng.start=ftToday();eng.plan={};engSaveSoon();engRender();}}
 
+
+
+// ── Voice call with the coach: hands-free, patient listening, auto-resume after the coach speaks ──
+const CALL={on:false,state:'idle',muted:false,buf:'',cur:'',rec:null,timer:null,hush:null,t0:0,tick:null,pauseBonus:0,skipFn:null,wake:null,fails:0};
+function callSR(){return window.SpeechRecognition||window.webkitSpeechRecognition;}
+function callUI(){
+  const ui=document.getElementById('callUI');if(!ui)return;
+  ui.classList.toggle('open',CALL.on);
+  ['listening','speaking','thinking'].forEach(k=>ui.classList.toggle(k,CALL.state===k));
+  const lab={listening:CALL.muted?'Muted':'Listening… take your time',thinking:'Coach is thinking…',speaking:'Coach is speaking',idle:'Connecting…'};
+  document.getElementById('callState').textContent=CALL.muted&&CALL.state==='listening'?lab.listening:(lab[CALL.state]||'');
+  document.getElementById('callMute').classList.toggle('on',CALL.muted);
+  document.getElementById('callMute').querySelector('span').textContent=CALL.muted?'Unmute':'Mute';
+  document.getElementById('callPause').textContent='Waits '+callPauseSecs().toFixed(1)+'s after you stop';
+  document.getElementById('callMe').textContent=(CALL.buf+' '+CALL.cur).trim();
+}
+function callPauseSecs(){return Math.min(8,(eng.cfg.pause||2.5)+CALL.pauseBonus);}
+function callMore(){CALL.pauseBonus=Math.min(4,CALL.pauseBonus+0.5);callUI();}
+async function callStart(){
+  if(CALL.on)return;
+  if(!callSR()){alert('Voice calls need speech recognition. Please use Chrome or Edge (Android or desktop).');return;}
+  if(!eng.cfg.key){engTab='setup';engRender();alert('Add your free Gemini key in Setup first.');return;}
+  engStop();rhStop(true);
+  Object.assign(CALL,{on:true,state:'idle',muted:false,buf:'',cur:'',pauseBonus:0,t0:Date.now(),fails:0});
+  document.getElementById('callCap').textContent='';
+  try{if(navigator.wakeLock)CALL.wake=await navigator.wakeLock.request('screen');}catch(e){}
+  CALL.tick=setInterval(()=>{
+    const sec=Math.floor((Date.now()-CALL.t0)/1000);document.getElementById('callTimer').textContent=rhFmt(sec);
+    if(typeof resetIdleTimer==='function')resetIdleTimer(); // speaking is not "activity" — don't auto-lock mid-call
+  },1000);
+  callUI();
+  const name=((currentUser&&currentUser.displayName)||'').split(' ')[0];
+  const greet=eng.today.msgs.length?`Welcome back${name?', '+name:''}. Where were we? Go ahead, I'm listening.`:`Hi${name?' '+name:''}! It's great to talk to you. How is your day going so far?`;
+  await callSay(greet);
+  if(CALL.on)callListen();
+}
+async function callSay(text){CALL.state='speaking';document.getElementById('callCap').textContent=text;callUI();await callSpeak(text);}
+function callSpeak(text){
+  return new Promise(res=>{
+    if(!('speechSynthesis' in window)){res();return;}
+    const clean=engSpeakable(text);if(!clean){res();return;}
+    const parts=(clean.match(/[^.!?]+[.!?]*\s*/g)||[clean]).map(x=>x.trim()).filter(Boolean),chunks=[];let cur='';
+    parts.forEach(x=>{if((cur+' '+x).length>190){if(cur)chunks.push(cur);cur=x;}else cur=cur?cur+' '+x:x;});if(cur)chunks.push(cur);
+    try{speechSynthesis.cancel();}catch(e){}
+    let i=0,done=false,guard=null;
+    const finish=()=>{if(done)return;done=true;clearTimeout(guard);CALL.skipFn=null;res();};
+    CALL.skipFn=()=>{try{speechSynthesis.cancel();}catch(e){}finish();};
+    const next=()=>{
+      clearTimeout(guard);
+      if(done||!CALL.on||i>=chunks.length)return finish();
+      const t=chunks[i++],u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=eng.cfg.rate||1;
+      const vs=speechSynthesis.getVoices(),v=vs.find(x=>/en[-_]IN/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
+      u.onend=next;u.onerror=next;
+      guard=setTimeout(next,Math.max(4000,t.length*110/(u.rate||1))+2500); // some browsers never fire onend — don't get stuck
+      speechSynthesis.speak(u);
+    };
+    next();
+  });
+}
+function callSkip(){if(CALL.skipFn)CALL.skipFn();else if(CALL.state==='listening'){CALL.buf='';CALL.cur='';callUI();}}
+function callMuteToggle(){
+  CALL.muted=!CALL.muted;
+  if(CALL.muted){callStopRec();clearTimeout(CALL.timer);}
+  else if(CALL.state==='listening')callListen();
+  callUI();
+}
+function callStopRec(){const r=CALL.rec;CALL.rec=null;if(r){r.onend=null;r.onresult=null;r.onerror=null;try{r.stop();}catch(e){}}}
+function callListen(){
+  if(!CALL.on||CALL.muted)return;
+  if(CALL.state==='thinking'||CALL.state==='speaking')CALL.state='listening';
+  CALL.state='listening';callUI();
+  armHush();
+  if(CALL.rec)return;
+  const SR=callSR(),r=new SR();r.lang='en-IN';r.continuous=true;r.interimResults=true;CALL.rec=r;
+  r.onresult=e=>{
+    // rebuild the whole utterance of this session each time (avoids the duplicated text some Android builds produce)
+    let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript+' ';
+    CALL.cur=t.trim();CALL.fails=0;callUI();armSilence();
+  };
+  r.onerror=e=>{
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){callEnd(true);alert('Microphone permission was blocked. Allow it in the browser address bar and try again.');return;}
+    if(e.error==='network'){document.getElementById('callMe').textContent='(speech service hiccup — still listening…)';}
+  };
+  r.onend=()=>{ // browsers end the session after a while or after silence — keep listening
+    if(CALL.rec!==r)return;
+    CALL.rec=null;
+    if(CALL.cur){CALL.buf+=(CALL.buf?' ':'')+CALL.cur;CALL.cur='';}
+    if(CALL.on&&CALL.state==='listening'&&!CALL.muted)setTimeout(()=>{if(CALL.on&&CALL.state==='listening')callListen();},120);
+  };
+  try{r.start();}catch(e){CALL.rec=null;setTimeout(()=>{if(CALL.on&&CALL.state==='listening')callListen();},400);}
+}
+function armSilence(){
+  clearTimeout(CALL.timer);clearTimeout(CALL.hush);
+  const text=(CALL.buf+' '+CALL.cur).trim();
+  // if the sentence trails off on a joining word ("and", "because", "um"), they are probably not done — wait longer
+  const extra=/\b(and|but|so|because|then|also|or|um+|uh+|like|that|which|if|when)$/i.test(text)?1.5:0;
+  CALL.timer=setTimeout(callCommit,(callPauseSecs()+extra)*1000);
+}
+function armHush(){ // gentle nudge if they say nothing for a while, like a real call
+  clearTimeout(CALL.hush);
+  CALL.hush=setTimeout(async()=>{
+    if(!CALL.on||CALL.state!=='listening'||CALL.muted||(CALL.buf+CALL.cur).trim())return;
+    callStopRec();await callSay("Take your time. Tell me whatever comes to mind, even a short sentence.");
+    if(CALL.on)callListen();
+  },16000);
+}
+async function callCommit(){
+  const text=(CALL.buf+' '+CALL.cur).trim();
+  if(!CALL.on||CALL.state!=='listening')return;
+  if(!text){armHush();return;}
+  clearTimeout(CALL.hush);callStopRec();
+  CALL.buf='';CALL.cur='';CALL.state='thinking';callUI();document.getElementById('callMe').textContent='“'+text+'”';
+  const reply=await engSend(text,{call:true});
+  if(!CALL.on)return;
+  if(!reply){
+    CALL.fails++;
+    const msg=engErr||'Connection problem.';
+    if(CALL.fails>=3||/key|rejected|limit/i.test(msg)){document.getElementById('callCap').textContent='⚠️ '+msg;await callSay('Sorry, I cannot continue the call right now.');callEnd(true);alert(msg);return;}
+    await callSay('Sorry, I had a connection problem. Could you say that again?');
+    if(CALL.on)callListen();return;
+  }
+  await callSay(reply);
+  if(CALL.on){document.getElementById('callMe').textContent='';callListen();}
+}
+function callEnd(silent,feedback){
+  if(!CALL.on)return;
+  CALL.on=false;CALL.state='idle';
+  clearTimeout(CALL.timer);clearTimeout(CALL.hush);clearInterval(CALL.tick);callStopRec();
+  try{speechSynthesis.cancel();}catch(e){}
+  try{if(CALL.wake){CALL.wake.release();CALL.wake=null;}}catch(e){}
+  const ui=document.getElementById('callUI');if(ui)ui.classList.remove('open','listening','speaking','thinking');
+  if(typeof engRender==='function'&&eng){engTab='talk';if(document.getElementById('tab-english').classList.contains('active'))engRender();}
+  if(!silent&&feedback)engSend('The call is over. Please give me feedback on how I spoke in this call: my 3 strongest points, my top 3 things to improve (with better versions of my actual sentences), and 3 useful phrases to practise.');
+}
 
 // ── Rehearsal studio: live transcript + pace / filler metrics + coach feedback ──
 const RH_SCN={
